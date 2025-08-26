@@ -51,9 +51,9 @@ final class RegisterController
 
         // Insert user
         $stmt = $this->pdo->prepare(
-            'INSERT INTO users (first_name, last_name, mobile_number, user_type_id, password, createdBy) VALUES (?, ?, ?, 10, ?, NOW())'
+            'INSERT INTO users (first_name, last_name, mobile_number, email, username, user_type_id, password, createdBy) VALUES (?, ?, ?, ?, ?, 10, ?, NOW())'
         );
-        $stmt->execute([$first_name, $last_name, $mobile_number, $passwordHash]);
+        $stmt->execute([$first_name, $last_name, $mobile_number, $email, $email, $passwordHash]);
 
         $userId = (int)$this->pdo->lastInsertId();
 
