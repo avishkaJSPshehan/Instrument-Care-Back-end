@@ -21,7 +21,7 @@ final class RegisterController
         $data = $req->json();
 
         // Validate required fields
-        $required = ['first_name','last_name','mobile_number','username', 'password'];
+        $required = ['first_name','last_name','mobile_number', 'password'];
         $missing = [];
         foreach ($required as $field) {
             if (empty($data[$field])) $missing[] = $field;
@@ -34,12 +34,13 @@ final class RegisterController
         $first_name = trim($data['first_name']);
         $last_name = trim($data['last_name']);
         $mobile_number = trim($data['mobile_number']);
-        $username = trim($data['username']);
+        $email = trim($data['email']);
+        // $username = trim($data['username']);
         $password = $data['password'];
 
         // Check if username exists
-        $stmt = $this->pdo->prepare('SELECT id FROM users WHERE username = ?');
-        $stmt->execute([$username]);
+        $stmt = $this->pdo->prepare('SELECT id FROM users WHERE email = ?');
+        $stmt->execute([$email]);
         if ($stmt->fetch()) {
             Response::json(['error' => 'Username already exists'], 409);
             return;
@@ -50,9 +51,9 @@ final class RegisterController
 
         // Insert user
         $stmt = $this->pdo->prepare(
-            'INSERT INTO users (first_name, last_name, mobile_number, user_type_id, username, password, createdBy) VALUES (?, ?, ?, 10, ?, ?, NOW())'
+            'INSERT INTO users (first_name, last_name, mobile_number, user_type_id, password, createdBy) VALUES (?, ?, ?, 10, ?, NOW())'
         );
-        $stmt->execute([$first_name, $last_name, $mobile_number, $username, $passwordHash]);
+        $stmt->execute([$first_name, $last_name, $mobile_number, $passwordHash]);
 
         $userId = (int)$this->pdo->lastInsertId();
 
