@@ -35,7 +35,6 @@ final class RegisterController
         $last_name = trim($data['last_name']);
         $mobile_number = trim($data['mobile_number']);
         $email = trim($data['email']);
-        // $username = trim($data['username']);
         $password = $data['password'];
 
         // Check if username exists
@@ -51,11 +50,26 @@ final class RegisterController
 
         // Insert user
         $stmt = $this->pdo->prepare(
-            'INSERT INTO users (first_name, last_name, mobile_number, email, username, user_type_id, password, createdBy) VALUES (?, ?, ?, ?, ?, 10, ?, NOW())'
+            'INSERT INTO users (first_name, last_name, mobile_number, email, username, user_type_id, password, createdBy) 
+             VALUES (?, ?, ?, ?, ?, 10, ?, NOW())'
         );
         $stmt->execute([$first_name, $last_name, $mobile_number, $email, $email, $passwordHash]);
 
         $userId = (int)$this->pdo->lastInsertId();
+
+        // ------------------ Insert into technician_details ------------------
+        $stmtTech = $this->pdo->prepare(
+            'INSERT INTO technician_details 
+             (user_id, full_name, personal_number, email,created_at) 
+             VALUES (?, ?, ?, ?, NOW())'
+        );
+        $stmtTech->execute([
+            $userId,                         // foreign key to users.id
+            $first_name . ' ' . $last_name,  // full_name from registration
+            $mobile_number,                   // personal_number from registration
+            $email                           // email
+        ]);
+        // ---------------------------------------------------------------------
 
         Response::json([
             'message' => 'User registered successfully',
