@@ -33,6 +33,7 @@ final class LoginController
         $stmt->execute([$username]);
         $user = $stmt->fetch();
         $roleId = $user['user_type_id'];
+        $id = $user['id'];
 
         if (!$user || !password_verify($password, $user['password'])) {
             Response::json(['error' => 'Invalid credentials'], 401);
@@ -51,6 +52,7 @@ final class LoginController
         Response::json([
             'message' => 'Login successful',
             'token' => $token,
+            'id' => $id,
             'role' => $roleId
         ]);
     }
