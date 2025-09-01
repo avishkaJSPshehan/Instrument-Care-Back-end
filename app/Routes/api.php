@@ -6,6 +6,7 @@ use App\Core\Router;
 use App\Controllers\ItemsController;
 use App\Controllers\LoginController;
 use App\Controllers\RegisterController;
+use App\Controllers\ProfileController;
 
 /** @var Router $router */
 /** @var Database $db */
@@ -17,6 +18,7 @@ $router->add('GET', '/api/health', function (Request $req) {
 
 // Items resource
 $items = new ItemsController($db);
+$profile = new ProfileController($db);
 
 // List
 $router->add('GET', '/api/items', [$items, 'index']);
@@ -33,6 +35,13 @@ $router->add('PATCH', '/api/items/{id}', [$items, 'update']);
 
 // Delete
 $router->add('DELETE', '/api/items/{id}', [$items, 'destroy']);
+
+
+// Get by id
+$router->add('GET', '/tech/profile/{id}', [$profile, 'Get_Technician_Profile_Details']);
+
+
+
 
 
 // Login route
