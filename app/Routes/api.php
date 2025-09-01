@@ -18,30 +18,34 @@ $router->add('GET', '/api/health', function (Request $req) {
 
 // Items resource
 $items = new ItemsController($db);
-$profile = new ProfileController($db);
+
 
 // List
 $router->add('GET', '/api/items', [$items, 'index']);
 
 // Get by id
-$router->add('GET', '/api/items/{id}', [$items, 'show']);
+// $router->add('GET', '/api/items/{id}', [$items, 'show']);
 
 // Create
 $router->add('POST', '/api/items', [$items, 'store']);
 
 // Update (PUT or PATCH)
-$router->add('PUT',   '/api/items/{id}', [$items, 'update']);
-$router->add('PATCH', '/api/items/{id}', [$items, 'update']);
+// $router->add('PUT',   '/api/items/{id}', [$items, 'update']);
+// $router->add('PATCH', '/api/items/{id}', [$items, 'update']);
 
 // Delete
 $router->add('DELETE', '/api/items/{id}', [$items, 'destroy']);
 
 
+
+$profile = new ProfileController($db);
 // Get by id
 $router->add('GET', '/tech/profile/{id}', [$profile, 'Get_Technician_Profile_Details']);
 
 
-
+// Update (PUT or PATCH)
+$router->add('PUT',   '/tech/profile/{id}', [$profile, 'Update_Technician_Profile_Details']);
+$router->add('PATCH', '/tech/profile/{id}', [$profile, 'Update_Technician_Profile_Details']);
 
 
 // Login route
