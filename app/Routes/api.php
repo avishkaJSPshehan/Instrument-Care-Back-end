@@ -64,6 +64,9 @@ $router->add('POST', '/user/service-request', [$Service_Request, 'Create_Service
 $profile = new ProfileController($db);
 $router->add('GET', '/tech/profile/{id}', [$profile, 'Get_Technician_Profile_Details']);
 
+// Get All Technician Details
+$router->add('GET', '/user/dashboard', [$profile, 'Get_All_Technician_Details']);
+
 
 // Update (PUT or PATCH)
 $router->add('PUT',   '/tech/profile/{id}', [$profile, 'Update_Technician_Profile_Details']);

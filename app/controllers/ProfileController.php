@@ -14,6 +14,23 @@ final class ProfileController{
         $this->pdo = $db->pdo();
     }
 
+    public function Get_All_Technician_Details(Request $req, array $params): void
+{
+    // Prepare query to fetch all technician details
+    $stmt = $this->pdo->prepare('SELECT * FROM technician_details');
+    $stmt->execute();
+    
+    $rows = $stmt->fetchAll(); // fetch all rows
+
+    if (!$rows) {
+        Response::json(['error' => 'No technicians found'], 404);
+        return;
+    }
+
+    Response::json($rows);
+}
+
+
     public function Get_Technician_Profile_Details(Request $req, array $params): void
     {
         $id = (int)($params['id'] ?? 0); 
