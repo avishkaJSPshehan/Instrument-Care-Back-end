@@ -1,4 +1,5 @@
 <?php
+use App\Controllers\ServiceRequestController;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Database;
@@ -38,8 +39,29 @@ $router->add('DELETE', '/api/items/{id}', [$items, 'destroy']);
 
 
 
-$profile = new ProfileController($db);
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////// Service Request Routes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Create
+$Service_Request = new ServiceRequestController($db);
+$router->add('POST', '/user/service-request', [$Service_Request, 'Create_Service_Request']);
+
+
+/////////////////////////////////////////// Technician PRofile Routes /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Get by id
+$profile = new ProfileController($db);
 $router->add('GET', '/tech/profile/{id}', [$profile, 'Get_Technician_Profile_Details']);
 
 
@@ -47,6 +69,7 @@ $router->add('GET', '/tech/profile/{id}', [$profile, 'Get_Technician_Profile_Det
 $router->add('PUT',   '/tech/profile/{id}', [$profile, 'Update_Technician_Profile_Details']);
 $router->add('PATCH', '/tech/profile/{id}', [$profile, 'Update_Technician_Profile_Details']);
 
+/////////////////////////////////////////// Auth Routs ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Login route
 $login = new LoginController($db);
