@@ -44,6 +44,23 @@ final class ProfileController{
         Response::json($row);
     }
 
+    public function Get_Technician_Profile_Details_by_ID(Request $req, array $params): void
+{
+    $id = (int)($params['id'] ?? 0); 
+
+    // Change user_id to technician_id
+    $stmt = $this->pdo->prepare('SELECT * FROM technician_details WHERE id = ?');
+    $stmt->execute([$id]);
+    
+    $row = $stmt->fetch();
+    if (!$row) {
+        Response::json(['error' => 'Technician not found'], 404);
+        return;
+    }
+
+    Response::json($row);
+}
+
     public function Update_Technician_Profile_Details(Request $req, array $params): void
     {
         $id = (int)($params['id'] ?? 0);
