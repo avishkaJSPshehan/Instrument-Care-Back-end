@@ -15,53 +15,56 @@ final class ServiceRequestController
         $this->pdo = $db->pdo();
     }
     public function Create_Service_Request(Request $req): void
-    {
-        $data = $req->json(); // Get JSON data from frontend
-        $fields = [];
-        $placeholders = [];
-        $values = [];
+{
+    $data = $req->json(); // Get JSON data from frontend
+    $fields = [];
+    $placeholders = [];
+    $values = [];
 
-        // Mapping frontend keys to database columns
-        $mapping = [
-            'full_name' => 'full_name',
-            'email' => 'email',
-            'physical_address' => 'physical_address',
-            'contact_number' => 'contact_number',
-            'institute_name' => 'institute_name',
-            'institute_address' => 'institute_address',
-            'instrument_name' => 'instrument_name',
-            'instrument_brand' => 'instrument_brand',
-            'instrument_model' => 'instrument_model',
-            'instrument_manufacturer' => 'instrument_manufacturer',
-            'manufactured_year' => 'manufactured_year',
-            'product_testing_type' => 'product_testing_type',
-            'testing_parameter' => 'testing_parameter',
-            'consumption_period' => 'consumption_period',
-            'issue_description' => 'issue_description'
-        ];
+    // Mapping frontend keys to database columns
+    $mapping = [
+        'full_name' => 'full_name',
+        'email' => 'email',
+        'physical_address' => 'physical_address',
+        'contact_number' => 'contact_number',
+        'institute_name' => 'institute_name',
+        'institute_address' => 'institute_address',
+        'instrument_name' => 'instrument_name',
+        'instrument_brand' => 'instrument_brand',
+        'instrument_model' => 'instrument_model',
+        'instrument_manufacturer' => 'instrument_manufacturer',
+        'manufactured_year' => 'manufactured_year',
+        'product_testing_type' => 'product_testing_type',
+        'testing_parameter' => 'testing_parameter',
+        'consumption_period' => 'consumption_period',
+        'issue_description' => 'issue_description',
+        'technician_id' => 'technician_id' // ✅ added technician_id
+    ];
 
-        foreach ($mapping as $frontendKey => $dbColumn) {
-            if (array_key_exists($frontendKey, $data)) {
-                $fields[] = $dbColumn;
-                $placeholders[] = '?';
-                $values[] = trim((string)$data[$frontendKey]);
-            }
+    foreach ($mapping as $frontendKey => $dbColumn) {
+        if (array_key_exists($frontendKey, $data)) {
+            $fields[] = $dbColumn;
+            $placeholders[] = '?';
+            $values[] = trim((string)$data[$frontendKey]);
         }
-
-        if (!$fields) {
-            Response::json(['error' => 'No data provided'], 400);
-            return;
-        }
-
-        $sql = 'INSERT INTO service_requests (' . implode(', ', $fields) . ') VALUES (' . implode(', ', $placeholders) . ')';
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($values);
-
-        $insertedId = $this->pdo->lastInsertId();
-        Response::json([
-            'message' => 'Service request created successfully',
-            'service_request_id' => $insertedId
-        ]);
     }
+
+    if (!$fields) {
+        Response::json(['error' => 'No data provided'], 400);
+        return;
+    }
+
+    // Prepare and execute SQL
+    $sql = 'INSERT INTO service_requests (' . implode(', ', $fields) . ') VALUES (' . implode(', ', $placeholders) . ')';
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute($values);
+
+    $insertedId = $this->pdo->lastInsertId();
+    Response::json([
+        'message' => 'Service request created successfully',
+        'service_request_id' => $insertedId
+    ]);
+}
+
 
 }
