@@ -57,6 +57,8 @@ $router->add('DELETE', '/api/items/{id}', [$items, 'destroy']);
 $Service_Request = new ServiceRequestController($db);
 $router->add('POST', '/user/service-request', [$Service_Request, 'Create_Service_Request']);
 
+$router->add('GET', '/user/service-request/{id}', [$Service_Request, 'Get_Technician_Service_Requests']);
+
 
 /////////////////////////////////////////// Technician Profile Routes /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
