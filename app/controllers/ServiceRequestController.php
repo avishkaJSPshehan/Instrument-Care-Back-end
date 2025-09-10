@@ -67,35 +67,80 @@ final class ServiceRequestController
     }
 
     public function Get_Technician_Service_Requests(Request $req, array $params): void
-{
-    // Get technician ID from URL params
-    $technicianId = (int)($params['id'] ?? 0);
+    {
+        // Get technician ID from URL params
+        $technicianId = (int)($params['id'] ?? 0);
 
-    if ($technicianId <= 0) {
-        Response::json(['error' => 'Invalid technician ID'], 400);
-        return;
-    }
-
-    try {
-        // Fetch all service requests for the given technician
-        $stmt = $this->pdo->prepare('SELECT * FROM service_requests WHERE technician_id = ? ORDER BY created_at DESC');
-        $stmt->execute([$technicianId]);
-
-        $rows = $stmt->fetchAll();
-
-        if (!$rows || count($rows) === 0) {
-            // No records found
-            Response::json(['message' => 'No service requests found for this technician', 'data' => []], 200);
+        if ($technicianId <= 0) {
+            Response::json(['error' => 'Invalid technician ID'], 400);
             return;
         }
 
-        // Return fetched records
-        Response::json($rows);
-    } catch (\PDOException $e) {
-        // Handle any unexpected DB errors
-        Response::json(['error' => 'Server error while fetching service requests'], 500);
-    }
-}
+        try {
+            // Fetch all service requests for the given technician
+            $stmt = $this->pdo->prepare('SELECT * FROM service_requests WHERE technician_id = ? ORDER BY created_at DESC');
+            $stmt->execute([$technicianId]);
 
+            $rows = $stmt->fetchAll();
+
+            if (!$rows || count($rows) === 0) {
+                // No records found
+                Response::json(['message' => 'No service requests found for this technician', 'data' => []], 200);
+                return;
+            }
+
+            // Return fetched records
+            Response::json($rows);
+        } catch (\PDOException $e) {
+            // Handle any unexpected DB errors
+            Response::json(['error' => 'Server error while fetching service requests'], 500);
+        }
+    }
+
+    public function Get_Technician_Job_Counts(Request $req, array $params): void
+    {
+        // Get technician ID from URL params
+        $technicianId = (int)($params['id'] ?? 0);
+
+        if ($technicianId <= 0) {
+            Response::json(['error' => 'Invalid technician ID'], 400);
+            return;
+        }
+
+        try {
+            // Query to get job counts grouped by status
+            $stmt = $this->pdo->prepare(
+                'SELECT status, COUNT(*) as count 
+                FROM service_requests 
+                WHERE technician_id = ? 
+                GROUP BY status'
+            );
+            $stmt->execute([$technicianId]);
+
+            $rows = $stmt->fetchAll();
+
+            if (!$rows || count($rows) === 0) {
+                Response::json([
+                    'message' => 'No service requests found for this technician', 
+                    'data' => []
+                ], 200);
+                return;
+            }
+
+            // Optional: convert to key-value format for easier usage
+            $result = [];
+            foreach ($rows as $row) {
+                $result[$row['status']] = (int)$row['count'];
+            }
+
+            Response::json([
+                'technician_id' => $technicianId,
+                'job_counts' => $result
+            ], 200);
+
+        } catch (\PDOException $e) {
+            Response::json(['error' => 'Server error while fetching job counts'], 500);
+        }
+    }
 
 }
