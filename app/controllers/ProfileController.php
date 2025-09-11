@@ -15,20 +15,20 @@ final class ProfileController{
     }
 
     public function Get_All_Technician_Details(Request $req, array $params): void
-{
-    // Prepare query to fetch all technician details
-    $stmt = $this->pdo->prepare('SELECT * FROM technician_details');
-    $stmt->execute();
-    
-    $rows = $stmt->fetchAll(); // fetch all rows
+    {
+        // Prepare query to fetch all technician details
+        $stmt = $this->pdo->prepare('SELECT * FROM technician_details');
+        $stmt->execute();
+        
+        $rows = $stmt->fetchAll(); // fetch all rows
 
-    if (!$rows) {
-        Response::json(['error' => 'No technicians found'], 404);
-        return;
+        if (!$rows) {
+            Response::json(['error' => 'No technicians found'], 404);
+            return;
+        }
+
+        Response::json($rows);
     }
-
-    Response::json($rows);
-}
 
 
     public function Get_Technician_Profile_Details(Request $req, array $params): void
@@ -45,21 +45,21 @@ final class ProfileController{
     }
 
     public function Get_Technician_Profile_Details_by_ID(Request $req, array $params): void
-{
-    $id = (int)($params['id'] ?? 0); 
+    {
+        $id = (int)($params['id'] ?? 0); 
 
-    // Change user_id to technician_id
-    $stmt = $this->pdo->prepare('SELECT * FROM technician_details WHERE id = ?');
-    $stmt->execute([$id]);
-    
-    $row = $stmt->fetch();
-    if (!$row) {
-        Response::json(['error' => 'Technician not found'], 404);
-        return;
+        // Change user_id to technician_id
+        $stmt = $this->pdo->prepare('SELECT * FROM technician_details WHERE id = ?');
+        $stmt->execute([$id]);
+        
+        $row = $stmt->fetch();
+        if (!$row) {
+            Response::json(['error' => 'Technician not found'], 404);
+            return;
+        }
+
+        Response::json($row);
     }
-
-    Response::json($row);
-}
 
     public function Update_Technician_Profile_Details(Request $req, array $params): void
     {
