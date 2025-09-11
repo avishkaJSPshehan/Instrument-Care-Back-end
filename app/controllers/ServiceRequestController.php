@@ -144,4 +144,45 @@ final class ServiceRequestController
         }
     }
 
+    public function Get_Technician_Service_Requests_By_User(Request $req, array $params): void
+{
+    // Get technician ID from URL params
+    $technicianId = (int)($params['id'] ?? 0);
+
+    // ✅ Get user_id from request body instead of token
+    $body = $req->getBody(); 
+    $userId = isset($body['user_id']) ? (int)$body['user_id'] : 0;
+
+    if ($technicianId <= 0 || $userId <= 0) {
+        Response::json(['error' => 'Invalid technician ID or user not provided'], 400);
+        return;
+    }
+
+    try {
+        // Fetch only service requests for this technician AND this user
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM service_requests 
+             WHERE technician_id = ? AND user_id = ? 
+             ORDER BY created_at DESC'
+        );
+        $stmt->execute([$technicianId, $userId]);
+
+        $rows = $stmt->fetchAll();
+
+        if (!$rows || count($rows) === 0) {
+            Response::json([
+                'message' => 'No service requests found for this technician by this user',
+                'data' => []
+            ], 200);
+            return;
+        }
+
+        Response::json($rows);
+    } catch (\PDOException $e) {
+        Response::json(['error' => 'Server error while fetching service requests'], 500);
+    }
+}
+
+
+
 }
