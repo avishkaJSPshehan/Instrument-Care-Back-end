@@ -38,7 +38,7 @@ final class ServiceRequestController
             'testing_parameter' => 'testing_parameter',
             'consumption_period' => 'consumption_period',
             'issue_description' => 'issue_description',
-            'technician_id' => 'technician_id', // ✅ added technician_id
+            'technician_id' => 'technician_id', 
             'user_id' => 'user_id'
         ];
 
