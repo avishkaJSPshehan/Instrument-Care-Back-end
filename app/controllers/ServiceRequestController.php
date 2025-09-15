@@ -149,8 +149,8 @@ final class ServiceRequestController
     // Get technician ID from URL params
     $technicianId = (int)($params['id'] ?? 0);
 
-    // ✅ Get user_id from request body instead of token
-    $body = $req->getBody(); 
+    // ✅ Read JSON body directly
+    $body = json_decode(file_get_contents("php://input"), true);
     $userId = isset($body['user_id']) ? (int)$body['user_id'] : 0;
 
     if ($technicianId <= 0 || $userId <= 0) {
@@ -159,7 +159,6 @@ final class ServiceRequestController
     }
 
     try {
-        // Fetch only service requests for this technician AND this user
         $stmt = $this->pdo->prepare(
             'SELECT * FROM service_requests 
              WHERE technician_id = ? AND user_id = ? 
@@ -182,6 +181,7 @@ final class ServiceRequestController
         Response::json(['error' => 'Server error while fetching service requests'], 500);
     }
 }
+
 
 
 
