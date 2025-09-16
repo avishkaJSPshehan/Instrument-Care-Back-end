@@ -60,6 +60,7 @@ $router->add('POST', '/user/service-request', [$Service_Request, 'Create_Service
 $router->add('GET', '/user/service-request/{id}', [$Service_Request, 'Get_Technician_Service_Requests']);
 $router->add('GET', '/service-request/{id}/job-counts', [$Service_Request, 'Get_Technician_Job_Counts']);
 $router->add('POST', '/user/service-request/{id}/my-requests', [$Service_Request, 'Get_Technician_Service_Requests_By_User']);
+$router->add('POST', '/user/my-requests', [$Service_Request, 'Get_All_User_Service_Requests']);
 
 
 /////////////////////////////////////////// Technician Profile Routes /////////////////////////////////////////////////////////////////////////////////////////////////////////////
