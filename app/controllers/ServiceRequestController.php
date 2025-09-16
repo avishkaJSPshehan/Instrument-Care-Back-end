@@ -145,42 +145,80 @@ final class ServiceRequestController
     }
 
     public function Get_Technician_Service_Requests_By_User(Request $req, array $params): void
-{
-    // Get technician ID from URL params
-    $technicianId = (int)($params['id'] ?? 0);
+    {
+        // Get technician ID from URL params
+        $technicianId = (int)($params['id'] ?? 0);
 
-    // ✅ Read JSON body directly
-    $body = json_decode(file_get_contents("php://input"), true);
-    $userId = isset($body['user_id']) ? (int)$body['user_id'] : 0;
+        // ✅ Read JSON body directly
+        $body = json_decode(file_get_contents("php://input"), true);
+        $userId = isset($body['user_id']) ? (int)$body['user_id'] : 0;
 
-    if ($technicianId <= 0 || $userId <= 0) {
-        Response::json(['error' => 'Invalid technician ID or user not provided'], 400);
-        return;
-    }
-
-    try {
-        $stmt = $this->pdo->prepare(
-            'SELECT * FROM service_requests 
-             WHERE technician_id = ? AND user_id = ? 
-             ORDER BY created_at DESC'
-        );
-        $stmt->execute([$technicianId, $userId]);
-
-        $rows = $stmt->fetchAll();
-
-        if (!$rows || count($rows) === 0) {
-            Response::json([
-                'message' => 'No service requests found for this technician by this user',
-                'data' => []
-            ], 200);
+        if ($technicianId <= 0 || $userId <= 0) {
+            Response::json(['error' => 'Invalid technician ID or user not provided'], 400);
             return;
         }
 
-        Response::json($rows);
-    } catch (\PDOException $e) {
-        Response::json(['error' => 'Server error while fetching service requests'], 500);
+        try {
+            $stmt = $this->pdo->prepare(
+                'SELECT * FROM service_requests 
+                WHERE technician_id = ? AND user_id = ? 
+                ORDER BY created_at DESC'
+            );
+            $stmt->execute([$technicianId, $userId]);
+
+            $rows = $stmt->fetchAll();
+
+            if (!$rows || count($rows) === 0) {
+                Response::json([
+                    'message' => 'No service requests found for this technician by this user',
+                    'data' => []
+                ], 200);
+                return;
+            }
+
+            Response::json($rows);
+        } catch (\PDOException $e) {
+            Response::json(['error' => 'Server error while fetching service requests'], 500);
+        }
     }
-}
+
+
+    public function Get_All_User_Service_Requests(Request $req, array $params): void
+    {
+        // ✅ Read JSON body directly
+        $body = json_decode(file_get_contents("php://input"), true);
+        $userId = isset($body['user_id']) ? (int)$body['user_id'] : 0;
+
+        if ($userId <= 0) {
+            Response::json(['error' => 'Invalid or missing user ID'], 400);
+            return;
+        }
+
+        try {
+            // Fetch all service requests created by this user
+            $stmt = $this->pdo->prepare(
+                'SELECT * FROM service_requests 
+                WHERE user_id = ? 
+                ORDER BY created_at DESC'
+            );
+            $stmt->execute([$userId]);
+
+            $rows = $stmt->fetchAll();
+
+            if (!$rows || count($rows) === 0) {
+                Response::json([
+                    'message' => 'No service requests found for this user',
+                    'data' => []
+                ], 200);
+                return;
+            }
+
+            // Return fetched records
+            Response::json($rows);
+        } catch (\PDOException $e) {
+            Response::json(['error' => 'Server error while fetching service requests'], 500);
+        }
+    }
 
 
 
