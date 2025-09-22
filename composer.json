@@ -1,0 +1,14 @@
+{
+    "name": "instrumentcare/back-end",
+    "description": "Back-end for Instrument Care project",
+    "type": "project",
+    "require": {
+        "phpmailer/phpmailer": "^6.10"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
