@@ -6,9 +6,10 @@ use PHPMailer\PHPMailer\Exception;
 
 $name = 'Avishka Shehan';
 $recipientEmail = 'jspshehan@gmail.com';
-$subject = 'Email Testing in Instrument Care';
+$subject = 'Instrument Care-You Have New Service Request';
 $clientName = $name; // Dynamic client name
-$logoPath = "../../Assets/national-logo.png"; // Use absolute path
+$logoPath = "../../Assets/Email Header.jpg"; // Use absolute path
+$footerPath = "../../Assets/Email Footer II.png";
 
 $mail = new PHPMailer(true);
 
@@ -28,31 +29,28 @@ try {
 
     // Embed logo
     $mail->addEmbeddedImage($logoPath, 'logo_cid');
+    $mail->addEmbeddedImage($footerPath, 'footer_cid');
 
     // HTML email body
     $mailBody = "
     <html>
     <body style='font-family: Arial, sans-serif; line-height: 1.6;'>
 
-        <!-- Header -->
-        <div style='background-color: #f4f4f4; padding: 20px; text-align: center;'>
-            <img src='cid:logo_cid' alt='Instrument Care' style='height: 60px;'><br>
-            <h2>Instrument Care</h2>
-        </div>
+    <!-- Header -->
+    <div style='background-color: #f4f4f4; text-align: center; height: 350; width: 100%; position: relative;'>
+        <img src='cid:logo_cid' alt='Instrument Care' style='width: 100%; height: 350; object-fit: cover;'>
+    </div>
 
-        <!-- Body -->
-        <div style='padding: 20px;'>
-            <p>You have a new service request from <strong>{$clientName}</strong>.</p>
-            <p>View full details by logging in to your <a href='https://yourwebsite.com/login'>Instrument Care account</a>.</p>
-        </div>
+    <!-- Body -->
+    <div style='padding: 20px;'>
+        <p>You have a new service request from <strong>{$clientName}</strong>.</p>
+        <p>View full details by logging in to your <a href='https://yourwebsite.com/login'>Instrument Care account</a>.</p>
+    </div>
 
-        <!-- Footer -->
-        <div style='background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 12px; color: #555;'>
-            <p>Instrument Care Support<br>
-            Phone: +94 123 456 789<br>
-            Email: support@instrumentcare.com</p>
-            <p>123, Main Street, Colombo, Sri Lanka</p>
-        </div>
+    <!-- Footer -->
+    <div style='background-color: #f4f4f4; text-align: center; height: 350; width: 100%; position: relative;'>
+        <img src='cid:footer_cid' alt='Instrument Care' style='width: 100%; height: 350; object-fit: cover;'>
+    </div>
 
     </body>
     </html>
