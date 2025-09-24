@@ -4,35 +4,42 @@ require "../../vendor/autoload.php";
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-$name = 'Avishka Shehan';
-$recipientEmail = 'jspshehan@gmail.com';
-$subject = 'Instrument Care - You Have a New Service Request';
-$clientName = $name; // Dynamic client/technician name
-$logoPath = "../../Assets/Email Header III.png"; // Absolute/relative path
-$footerPath = "../../Assets/Email Footer IV.png";
+/**
+ * Sends a service request email with dynamic details
+ *
+ * @param string $recipientEmail Recipient email address
+ * @param string $clientName Recipient name
+ * @param string $requestId Service Request ID
+ * @param string $customer Customer name
+ * @param string $serviceType Type of service
+ * @param string $scheduledDate Scheduled date
+ * @param string $location Location
+ */
+function sendServiceRequestEmail($recipientEmail, $clientName, $requestId, $customer, $serviceType, $scheduledDate, $location) {
+    $subject = 'Instrument Care - You Have a New Service Request';
+    $logoPath = "../../Assets/Email Header III.png"; // Header image path
 
-$mail = new PHPMailer(true);
+    $mail = new PHPMailer(true);
 
-try {
-    // Server settings
-    $mail->isSMTP();
-    $mail->Host       = 'smtp.gmail.com';
-    $mail->SMTPAuth   = true;
-    $mail->Username   = 'avishka.test.ii@gmail.com'; // Your Gmail
-    $mail->Password   = 'xsnefikqmjrqtfck';         // Gmail App Password
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // TLS
-    $mail->Port       = 587;
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'avishka.test.ii@gmail.com';
+        $mail->Password   = 'xsnefikqmjrqtfck';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
 
-    // Recipients
-    $mail->setFrom('avishka.test.ii@gmail.com', 'Instrument Care');
-    $mail->addAddress($recipientEmail, $name);
+        // Recipients
+        $mail->setFrom('avishka.test.ii@gmail.com', 'Instrument Care');
+        $mail->addAddress($recipientEmail, $clientName);
 
-    // Embed header & footer images
-    $mail->addEmbeddedImage($logoPath, 'logo_cid');
-    $mail->addEmbeddedImage($footerPath, 'footer_cid');
+        // Embed header image
+        $mail->addEmbeddedImage($logoPath, 'logo_cid');
 
-    // Elegant HTML Email Body
-$mailBody = "
+        // HTML Email Body
+        $mailBody = "
 <html>
   <body style='margin:0; padding:0; font-family:Segoe UI, Roboto, Arial, sans-serif; background-color:#ffffff; color:#333333;'>
 
@@ -57,11 +64,11 @@ $mailBody = "
 
       <!-- Details Section -->
       <div style='background:#f9f9f9; padding:18px 20px; border-left:4px solid #ff6600; margin:20px 0; font-size:14px;'>
-        <p style='margin:8px 0;'><strong>Request ID:</strong> SR-2025-001</p>
-        <p style='margin:8px 0;'><strong>Customer:</strong> John Doe</p>
-        <p style='margin:8px 0;'><strong>Service Type:</strong> <strong style='color:#000;'>AC Repair</strong></p>
-        <p style='margin:8px 0;'><strong>Scheduled Date:</strong> 25 Sept 2025</p>
-        <p style='margin:8px 0;'><strong>Location:</strong> Colombo, Sri Lanka</p>
+        <p style='margin:8px 0;'><strong>Request ID:</strong> {$requestId}</p>
+        <p style='margin:8px 0;'><strong>Customer:</strong> {$customer}</p>
+        <p style='margin:8px 0;'><strong>Service Type:</strong> <strong style='color:#000;'>{$serviceType}</strong></p>
+        <p style='margin:8px 0;'><strong>Scheduled Date:</strong> {$scheduledDate}</p>
+        <p style='margin:8px 0;'><strong>Location:</strong> {$location}</p>
       </div>
 
       <p style='font-size:15px; margin:0 0 25px;'>
@@ -110,15 +117,26 @@ $mailBody = "
 </html>
 ";
 
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body    = $mailBody;
+        $mail->AltBody = "You have a new service request from {$clientName}. Request ID: {$requestId}, Service: {$serviceType}, Date: {$scheduledDate}, Location: {$location}.";
 
-    // Content
-    $mail->isHTML(true);
-    $mail->Subject = $subject;
-    $mail->Body    = $mailBody;
-    $mail->AltBody = "You have a new service request from {$clientName}. Visit your Instrument Care account to view details.";
-
-    $mail->send();
-    echo "Email sent successfully!";
-} catch (Exception $e) {
-    echo "Mailer Error: " . $mail->ErrorInfo;
+        $mail->send();
+        echo "Email sent successfully to {$recipientEmail}!";
+    } catch (Exception $e) {
+        echo "Mailer Error: " . $mail->ErrorInfo;
+    }
 }
+
+// Example usage
+// sendServiceRequestEmail(
+//     'jspshehan@gmail.com',
+//     'Avishka Shehan',
+//     'SR-2025-001',
+//     'John Doe',
+//     'AC Repair',
+//     '25 Sept 2025',
+//     'Colombo, Sri Lanka'
+// );
