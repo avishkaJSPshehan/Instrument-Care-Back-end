@@ -6,6 +6,9 @@ use App\Core\Request;
 use App\Core\Response;
 use PDO;
 
+// Include EmailController
+require_once 'EmailController.php';
+
 final class ServiceRequestController
 {
     private PDO $pdo;
@@ -14,6 +17,7 @@ final class ServiceRequestController
     {
         $this->pdo = $db->pdo();
     }
+
     public function Create_Service_Request(Request $req): void
     {
         $data = $req->json(); // Get JSON data from frontend
@@ -55,12 +59,35 @@ final class ServiceRequestController
             return;
         }
 
-        // Prepare and execute SQL
+        // Insert into database
         $sql = 'INSERT INTO service_requests (' . implode(', ', $fields) . ') VALUES (' . implode(', ', $placeholders) . ')';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($values);
 
         $insertedId = $this->pdo->lastInsertId();
+
+        // Send Email Notification
+        if (isset($data['email'], $data['full_name'])) {
+            $recipientEmail = $data['email'];
+            $clientName = $data['full_name'];
+            $requestId = "SR-" . $insertedId;
+            $customer = $data['full_name'];
+            $serviceType = $data['product_testing_type'] ?? 'N/A';
+            $scheduledDate = $data['scheduled_date'] ?? date('d M Y'); // Use frontend date if provided
+            $location = $data['physical_address'] ?? 'N/A';
+
+            // Call the email function from EmailController
+            sendServiceRequestEmail(
+                $recipientEmail,
+                $clientName,
+                $requestId,
+                $customer,
+                $serviceType,
+                $scheduledDate,
+                $location
+            );
+        }
+
         Response::json([
             'message' => 'Service request created successfully',
             'service_request_id' => $insertedId
@@ -69,7 +96,6 @@ final class ServiceRequestController
 
     public function Get_Technician_Service_Requests(Request $req, array $params): void
     {
-        // Get technician ID from URL params
         $technicianId = (int)($params['id'] ?? 0);
 
         if ($technicianId <= 0) {
@@ -78,29 +104,24 @@ final class ServiceRequestController
         }
 
         try {
-            // Fetch all service requests for the given technician
             $stmt = $this->pdo->prepare('SELECT * FROM service_requests WHERE technician_id = ? ORDER BY created_at DESC');
             $stmt->execute([$technicianId]);
 
             $rows = $stmt->fetchAll();
 
             if (!$rows || count($rows) === 0) {
-                // No records found
                 Response::json(['message' => 'No service requests found for this technician', 'data' => []], 200);
                 return;
             }
 
-            // Return fetched records
             Response::json($rows);
         } catch (\PDOException $e) {
-            // Handle any unexpected DB errors
             Response::json(['error' => 'Server error while fetching service requests'], 500);
         }
     }
 
     public function Get_Technician_Job_Counts(Request $req, array $params): void
     {
-        // Get technician ID from URL params
         $technicianId = (int)($params['id'] ?? 0);
 
         if ($technicianId <= 0) {
@@ -109,7 +130,6 @@ final class ServiceRequestController
         }
 
         try {
-            // Query to get job counts grouped by status
             $stmt = $this->pdo->prepare(
                 'SELECT status, COUNT(*) as count 
                 FROM service_requests 
@@ -119,17 +139,8 @@ final class ServiceRequestController
             $stmt->execute([$technicianId]);
 
             $rows = $stmt->fetchAll();
-
-            if (!$rows || count($rows) === 0) {
-                Response::json([
-                    'message' => 'No service requests found for this technician', 
-                    'data' => []
-                ], 200);
-                return;
-            }
-
-            // Optional: convert to key-value format for easier usage
             $result = [];
+
             foreach ($rows as $row) {
                 $result[$row['status']] = (int)$row['count'];
             }
@@ -146,10 +157,7 @@ final class ServiceRequestController
 
     public function Get_Technician_Service_Requests_By_User(Request $req, array $params): void
     {
-        // Get technician ID from URL params
         $technicianId = (int)($params['id'] ?? 0);
-
-        // ✅ Read JSON body directly
         $body = json_decode(file_get_contents("php://input"), true);
         $userId = isset($body['user_id']) ? (int)$body['user_id'] : 0;
 
@@ -182,10 +190,8 @@ final class ServiceRequestController
         }
     }
 
-
     public function Get_All_User_Service_Requests(Request $req, array $params): void
     {
-        // ✅ Read JSON body directly
         $body = json_decode(file_get_contents("php://input"), true);
         $userId = isset($body['user_id']) ? (int)$body['user_id'] : 0;
 
@@ -195,7 +201,6 @@ final class ServiceRequestController
         }
 
         try {
-            // Fetch all service requests created by this user
             $stmt = $this->pdo->prepare(
                 'SELECT * FROM service_requests 
                 WHERE user_id = ? 
@@ -213,14 +218,9 @@ final class ServiceRequestController
                 return;
             }
 
-            // Return fetched records
             Response::json($rows);
         } catch (\PDOException $e) {
             Response::json(['error' => 'Server error while fetching service requests'], 500);
         }
     }
-
-
-
-
 }
