@@ -6,8 +6,8 @@ use App\Core\Request;
 use App\Core\Response;
 use PDO;
 
-// Include EmailController
-require_once 'EmailController.php';
+// Include EmailController to access sendServiceRequestEmail function
+require_once __DIR__ . '/EmailController.php';
 
 final class ServiceRequestController
 {
@@ -67,6 +67,7 @@ final class ServiceRequestController
         $insertedId = $this->pdo->lastInsertId();
 
         // Send Email Notification
+        $emailSent = false;
         if (isset($data['email'], $data['full_name'])) {
             $recipientEmail = $data['email'];
             $clientName = $data['full_name'];
@@ -77,7 +78,7 @@ final class ServiceRequestController
             $location = $data['physical_address'] ?? 'N/A';
 
             // Call the email function from EmailController
-            sendServiceRequestEmail(
+            $emailSent = sendServiceRequestEmail(
                 $recipientEmail,
                 $clientName,
                 $requestId,
@@ -90,7 +91,9 @@ final class ServiceRequestController
 
         Response::json([
             'message' => 'Service request created successfully',
-            'service_request_id' => $insertedId
+            'service_request_id' => $insertedId,
+            'email_sent' => $emailSent,
+            'email_recipient' => $data['email'] ?? null
         ]);
     }
 
