@@ -86,9 +86,9 @@ function sendServiceRequestEmail($recipientEmail, $clientName, $requestId, $cust
             <!-- Footer -->
             <div style='background:linear-gradient(135deg, #f4f4f4 0%, #e9e9e9 100%); padding:30px 20px; text-align:center; font-family:Segoe UI, Roboto, Arial, sans-serif; font-size:13px; color:#555555;'>
 
-            <p style='margin:0; font-weight:700; font-size:15px; color:#333333;'>
+            <h2 style='margin:0; font-weight:700; font-size:15px; color:#333333;'>
                 Instrument Care
-            </p>
+            </h2>
 
             <p style='margin:6px 0 18px; font-size:18px; color:#777777;'>
                 Reliable Service • Quality Care • Customer First
