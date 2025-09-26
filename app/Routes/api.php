@@ -86,3 +86,4 @@ $router->add('POST', '/api/login', [$login, 'login']);
 // Registration route
 $register = new RegisterController($db);
 $router->add('POST', '/api/register', [$register, 'register']);
+$router->add('POST', '/api/verify-email', [$register, 'verifyEmail']);
