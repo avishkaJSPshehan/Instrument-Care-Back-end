@@ -77,7 +77,6 @@ final class RegisterController
         // ------------------ Generate & Save Verification Code ----------------
         $verificationCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        // (Optional) save code to verification table for later checking
         $stmtOtp = $this->pdo->prepare(
             'INSERT INTO email_verification (user_id, code, expires_at, created_at) 
              VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE), NOW())'
@@ -94,5 +93,45 @@ final class RegisterController
             'user_id' => $userId,
             'email_sent' => $emailSent
         ], 201);
+    }
+
+    // POST /api/verify-email
+    public function verifyEmail(Request $req): void
+    {
+        $data = $req->json();
+        $required = ['user_id','otp'];
+        $missing = [];
+        foreach ($required as $field) {
+            if (empty($data[$field])) $missing[] = $field;
+        }
+        if ($missing) {
+            Response::json(['error' => 'Missing fields', 'fields' => $missing], 422);
+            return;
+        }
+
+        $userId = (int)$data['user_id'];
+        $otp = trim($data['otp']);
+
+        // Check OTP in email_verification table
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM email_verification WHERE user_id = ? AND code = ? AND expires_at > NOW()'
+        );
+        $stmt->execute([$userId, $otp]);
+        $verification = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$verification) {
+            Response::json(['message' => 'Invalid or expired OTP'], 400);
+            return;
+        }
+
+        // Mark email as verified in users table
+        $stmtUpdate = $this->pdo->prepare('UPDATE users SET is_email_verified = 1 WHERE id = ?');
+        $stmtUpdate->execute([$userId]);
+
+        // Delete the OTP record (optional)
+        $stmtDelete = $this->pdo->prepare('DELETE FROM email_verification WHERE user_id = ?');
+        $stmtDelete->execute([$userId]);
+
+        Response::json(['message' => 'Verification successful'], 200);
     }
 }
