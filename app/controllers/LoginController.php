@@ -56,4 +56,38 @@ final class LoginController
             'role' => $roleId
         ]);
     }
+
+
+    public function sendPasswordReset(Request $req): void
+    {
+        $data = $req->json();
+
+        if (empty($data['email'])) {
+            Response::json(['error' => 'Email is required'], 422);
+            return;
+        }
+
+        $recipientEmail = trim($data['email']);
+
+        // Check if user exists with this email
+        $stmt = $this->pdo->prepare('SELECT id, username FROM users WHERE username = ? OR email = ?');
+        $stmt->execute([$recipientEmail, $recipientEmail]);
+        $user = $stmt->fetch();
+
+        if (!$user) {
+            Response::json(['error' => 'No account found with this email'], 404);
+            return;
+        }
+
+        // Generate a temporary token (for demo: base64 random + timestamp)
+        $resetToken = base64_encode(random_bytes(32)) . '.' . time();
+
+        // Call email sender
+        if (sendPasswordResetEmail($recipientEmail, $resetToken)) {
+            Response::json(['message' => 'Password reset link sent successfully']);
+        } else {
+            Response::json(['error' => 'Failed to send password reset email'], 500);
+        }
+    }
+
 }
