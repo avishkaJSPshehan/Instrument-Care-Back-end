@@ -81,6 +81,7 @@ $router->add('PATCH', '/tech/profile/{id}', [$profile, 'Update_Technician_Profil
 // Login route
 $login = new LoginController($db);
 $router->add('POST', '/api/login', [$login, 'login']);
+$router->add('POST', '/api/email-entry-forgot-password', [$login, 'sendPasswordReset']);
 
 
 // Registration route

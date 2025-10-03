@@ -212,5 +212,88 @@ function sendEmailVerification($recipientEmail, $verificationCode) {
     }
 }
 
-// ✅ Example usage for OTP email
-// sendEmailVerification("jspshehan@gmail.com", "123456");
+
+/**
+ * 📧 Sends password reset email with link
+ *
+ * @param string $recipientEmail Recipient email address
+ * @param string $resetToken Unique token for password reset
+ * @return bool
+ */
+function sendPasswordResetEmail($recipientEmail, $resetToken) {
+    $subject = 'Instrument Care - Password Reset Request';
+    $logoPath = "C:/xampp/htdocs/Instrument-Care-Back-end/Assets/Email Header III.png"; // header image
+
+    // Construct reset link (frontend or API URL that handles reset)
+    $resetLink = "http://localhost:5173/auth/set-new-password-forgot-password";
+
+    $mail = new PHPMailer(true);
+
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'avishka.test.ii@gmail.com'; // your email
+        $mail->Password   = 'xsnefikqmjrqtfck';          // your app password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+        // Recipients
+        $mail->setFrom('avishka.test.ii@gmail.com', 'Instrument Care');
+        $mail->addAddress($recipientEmail);
+
+        // Embed header image
+        $mail->addEmbeddedImage($logoPath, 'logo_cid');
+
+        // HTML Email Body
+        $mailBody = "
+        <html>
+        <body style='margin:0; padding:0; font-family:Segoe UI, Roboto, Arial, sans-serif; background-color:#ffffff; color:#333333;'>
+
+            <!-- Header -->
+            <div style='margin:0; padding:0;'>
+                <img src='cid:logo_cid' alt='Instrument Care' style='display:block; width:100%; height:auto; object-fit:cover;'>
+            </div>
+
+            <!-- Body -->
+            <div style='padding:40px 30px; text-align:center;'>
+                <h1 style='color:#ff6600; margin-bottom:20px; font-size:24px; font-weight:600;'>
+                    Password Reset Request
+                </h1>
+
+                <p style='font-size:15px; margin:0 0 20px;'>
+                    We received a request to reset the password for your <strong>Instrument Care</strong> account.
+                </p>
+
+                <!-- Reset Button -->
+                <a href='{$resetLink}' style='background:#ff6600; color:#ffffff; padding:12px 24px; text-decoration:none; border-radius:5px; font-weight:bold; display:inline-block; margin:20px 0;'>
+                    Reset My Password
+                </a>
+
+                <p style='font-size:14px; margin:20px 0 0;'>
+                    This link will expire in <strong>30 minutes</strong>. If you did not request a password reset, please ignore this email.
+                </p>
+            </div>
+
+            <!-- Footer -->
+            <div style='background:#f4f4f4; padding:20px; text-align:center; font-size:12px; color:#777;'>
+                <p style='margin:0;'>© " . date('Y') . " Instrument Care. All rights reserved.</p>
+            </div>
+
+        </body>
+        </html>
+        ";
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body    = $mailBody;
+        $mail->AltBody = "Use this link to reset your password: {$resetLink}";
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        return false;
+    }
+}
