@@ -59,7 +59,7 @@ final class LoginController
 
     // ✅ Only if roleId is 10, get technician_id
     if ((int)$roleId === 10) {
-        $stmtTech = $this->pdo->prepare('SELECT technician_id FROM technician_details WHERE user_id = ? LIMIT 1');
+        $stmtTech = $this->pdo->prepare('SELECT id FROM technician_details WHERE user_id = ? LIMIT 1');
         $stmtTech->execute([$id]);
         $tech = $stmtTech->fetch();
 
