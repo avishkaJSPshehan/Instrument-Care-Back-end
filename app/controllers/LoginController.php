@@ -63,8 +63,8 @@ final class LoginController
         $stmtTech->execute([$id]);
         $tech = $stmtTech->fetch();
 
-        if ($tech && isset($tech['technician_id'])) {
-            $response['technician_id'] = $tech['technician_id'];
+        if ($tech && isset($tech['id'])) {
+            $response['technician_id'] = $tech['id'];
         }
     }
 
