@@ -66,36 +66,47 @@ final class ServiceRequestController
 
         $insertedId = $this->pdo->lastInsertId();
 
-        // Send Email Notification
+        // Send Email Notification to Technician
         $emailSent = false;
-        if (isset($data['email'], $data['full_name'])) {
-            $recipientEmail = $data['email'];
-            $clientName = $data['full_name'];
-            $requestId = "SR-" . $insertedId;
-            $customer = $data['full_name'];
-            $serviceType = $data['product_testing_type'] ?? 'N/A';
-            $scheduledDate = $data['scheduled_date'] ?? date('d M Y'); // Use frontend date if provided
-            $location = $data['physical_address'] ?? 'N/A';
 
-            // Call the email function from EmailController
-            $emailSent = sendServiceRequestEmail(
-                $recipientEmail,
-                $clientName,
-                $requestId,
-                $customer,
-                $serviceType,
-                $scheduledDate,
-                $location
-            );
+        if (isset($data['technician_id'])) {
+            $techId = $data['technician_id'];
+
+            // Fetch technician details from technician_details table
+            $techStmt = $this->pdo->prepare('SELECT full_name, email FROM technician_details WHERE id = ?');
+            $techStmt->execute([$techId]);
+            $technician = $techStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($technician && !empty($technician['email'])) {
+                $recipientEmail = $technician['email'];
+                $technicianName = $technician['full_name'];
+                $requestId = "SR-" . $insertedId;
+                $customer = $data['full_name'] ?? 'N/A';
+                $serviceType = $data['product_testing_type'] ?? 'N/A';
+                $scheduledDate = $data['scheduled_date'] ?? date('d M Y');
+                $location = $data['physical_address'] ?? 'N/A';
+
+                // Call the email function from EmailController
+                $emailSent = sendServiceRequestEmail(
+                    $recipientEmail,
+                    $technicianName,
+                    $requestId,
+                    $customer,
+                    $serviceType,
+                    $scheduledDate,
+                    $location
+                );
+            }
         }
 
         Response::json([
             'message' => 'Service request created successfully',
             'service_request_id' => $insertedId,
             'email_sent' => $emailSent,
-            'email_recipient' => $data['email'] ?? null
+            'technician_email' => $technician['email'] ?? null
         ]);
     }
+
 
     public function Get_Technician_Service_Requests(Request $req, array $params): void
     {
