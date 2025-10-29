@@ -237,4 +237,70 @@ final class ServiceRequestController
             Response::json(['error' => 'Server error while fetching service requests'], 500);
         }
     }
+
+    public function Send_Service_Request_Email(Request $req): void
+{
+    // Decode incoming JSON body
+    $body = json_decode(file_get_contents("php://input"), true);
+
+    $ownerEmail = $body['owner_email'] ?? null;
+    $subject = $body['subject'] ?? null;
+    $message = $body['message'] ?? null;
+    $requestId = $body['request_id'] ?? null;
+
+    if (!$ownerEmail || !$subject || !$message || !$requestId) {
+        Response::json(['error' => 'Missing required fields'], 400);
+        return;
+    }
+
+    // Fetch request details for email content (optional but useful)
+    try {
+        $stmt = $this->pdo->prepare("
+            SELECT sr.id, sr.customer_name, sr.instrument_name, sr.service_type, sr.scheduled_date, sr.location
+            FROM service_requests sr
+            WHERE sr.id = ?
+        ");
+        $stmt->execute([$requestId]);
+        $serviceRequest = $stmt->fetch();
+
+        if (!$serviceRequest) {
+            Response::json(['error' => 'Service request not found'], 404);
+            return;
+        }
+    } catch (\PDOException $e) {
+        Response::json(['error' => 'Database error fetching service request'], 500);
+        return;
+    }
+
+    // Send the email
+    $emailSent = sendOwnerEmail(
+        $ownerEmail,
+        $subject,
+        $message,
+        $serviceRequest
+    );
+
+    if ($emailSent) {
+        // Update service request status to IN_PROGRESS
+        try {
+            $updateStmt = $this->pdo->prepare("
+                UPDATE service_requests
+                SET status = 'IN_PROGRESS'
+                WHERE id = ?
+            ");
+            $updateStmt->execute([$requestId]);
+        } catch (\PDOException $e) {
+            Response::json(['error' => 'Email sent, but failed to update status'], 500);
+            return;
+        }
+
+        Response::json([
+            'success' => true,
+            'message' => 'Email sent successfully and status updated to IN_PROGRESS',
+        ]);
+    } else {
+        Response::json(['error' => 'Failed to send email'], 500);
+    }
+}
+
 }

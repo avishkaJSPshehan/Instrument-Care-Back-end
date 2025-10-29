@@ -297,3 +297,87 @@ function sendPasswordResetEmail($recipientEmail, $resetToken) {
         return false;
     }
 }
+
+function sendOwnerEmail($recipientEmail, $subject, $customMessage, $request)
+{
+    $mail = new PHPMailer(true);
+    $logoPath = "C:/xampp/htdocs/instrument-care-back-end/Assets/Email Header III.png";
+
+    try {
+        // SMTP Configuration
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'avishka.test.ii@gmail.com';
+        $mail->Password   = 'xsnefikqmjrqtfck'; // Use app password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+        // Sender / Recipient
+        $mail->setFrom('avishka.test.ii@gmail.com', 'Instrument Care');
+        $mail->addAddress($recipientEmail);
+
+        // Embed header image
+        if (file_exists($logoPath)) {
+            $mail->addEmbeddedImage($logoPath, 'logo_cid');
+        }
+
+        // Prepare HTML Email Body
+        $mailBody = "
+        <html>
+        <body style='margin:0; padding:0; font-family:Segoe UI, Roboto, Arial, sans-serif; background-color:#ffffff; color:#333333;'>
+            <div style='margin:0; padding:0;'>
+                <img src='cid:logo_cid' alt='Instrument Care' style='display:block; width:100%; height:auto; object-fit:cover;' />
+            </div>
+
+            <div style='padding:40px 30px;'>
+                <h1 style='color:#ff6600; margin-top:0; margin-bottom:20px; font-size:24px; font-weight:600;'>
+                    Instrument Service Update
+                </h1>
+
+                <p style='font-size:15px; margin:0 0 12px;'>
+                    Dear <strong>Valued Customer</strong>,
+                </p>
+
+                <p style='font-size:15px; margin:0 0 20px;'>
+                    {$customMessage}
+                </p>
+
+                <div style='background:#f9f9f9; padding:18px 20px; border-left:4px solid #ff6600; margin:20px 0; font-size:14px;'>
+                    <p style='margin:8px 0;'><strong>Request ID:</strong> {$request['id']}</p>
+                    <p style='margin:8px 0;'><strong>Instrument:</strong> {$request['instrument_name']}</p>
+                    <p style='margin:8px 0;'><strong>Service Type:</strong> {$request['service_type']}</p>
+                    <p style='margin:8px 0;'><strong>Scheduled Date:</strong> {$request['scheduled_date']}</p>
+                    <p style='margin:8px 0;'><strong>Location:</strong> {$request['location']}</p>
+                </div>
+
+                <a href='https://yourwebsite.com/login' style='display:inline-block; padding:14px 28px; background:#ff6600; color:#ffffff; text-decoration:none; font-weight:600; border-radius:6px; font-size:15px;'>
+                    View in System
+                </a>
+            </div>
+
+            <div style='background:linear-gradient(135deg, #f4f4f4 0%, #e9e9e9 100%); padding:30px 20px; text-align:center;'>
+                <h2 style='margin:0; font-weight:700; font-size:15px; color:#333333;'>Instrument Care</h2>
+                <p style='margin:6px 0 18px; font-size:18px; color:#777777;'>Reliable Service • Quality Care • Customer First</p>
+                <p style='margin:0; font-size:12px; color:#999999;'>
+                    © " . date('Y') . " Instrument Care — Automated Email. Please do not reply.
+                </p>
+            </div>
+        </body>
+        </html>
+        ";
+
+        // Send Email
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body    = $mailBody;
+        $mail->AltBody = strip_tags($customMessage);
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        error_log("Email error: " . $e->getMessage());
+        return false;
+    }
+}
+
