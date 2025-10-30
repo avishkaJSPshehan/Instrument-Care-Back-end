@@ -256,7 +256,7 @@ final class ServiceRequestController
     // Fetch request details for email content (optional but useful)
     try {
         $stmt = $this->pdo->prepare("
-            SELECT sr.id, sr.customer_name, sr.instrument_name, sr.service_type, sr.scheduled_date, sr.location
+            SELECT sr.id, sr.full_name
             FROM service_requests sr
             WHERE sr.id = ?
         ");
@@ -285,7 +285,7 @@ final class ServiceRequestController
         try {
             $updateStmt = $this->pdo->prepare("
                 UPDATE service_requests
-                SET status = 'IN_PROGRESS'
+                SET status = 'In Progress'
                 WHERE id = ?
             ");
             $updateStmt->execute([$requestId]);
