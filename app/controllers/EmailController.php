@@ -346,9 +346,8 @@ function sendOwnerEmail($recipientEmail, $subject, $customMessage, $request)
                 <div style='background:#f9f9f9; padding:18px 20px; border-left:4px solid #ff6600; margin:20px 0; font-size:14px;'>
                     <p style='margin:8px 0;'><strong>Request ID:</strong> {$request['id']}</p>
                     <p style='margin:8px 0;'><strong>Instrument:</strong> {$request['instrument_name']}</p>
-                    <p style='margin:8px 0;'><strong>Service Type:</strong> {$request['service_type']}</p>
-                    <p style='margin:8px 0;'><strong>Scheduled Date:</strong> {$request['scheduled_date']}</p>
-                    <p style='margin:8px 0;'><strong>Location:</strong> {$request['location']}</p>
+                    <p style='margin:8px 0;'><strong>Scheduled Date:</strong> {$request['created_at']}</p>
+                    <p style='margin:8px 0;'><strong>Location:</strong> {$request['institute_address']}</p>
                 </div>
 
                 <a href='https://yourwebsite.com/login' style='display:inline-block; padding:14px 28px; background:#ff6600; color:#ffffff; text-decoration:none; font-weight:600; border-radius:6px; font-size:15px;'>
