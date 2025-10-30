@@ -154,10 +154,16 @@ final class ServiceRequestController
 
             $rows = $stmt->fetchAll();
             $result = [];
+            $totalCount = 0;
 
             foreach ($rows as $row) {
-                $result[$row['status']] = (int)$row['count'];
+                $count = (int)$row['count'];
+                $result[$row['status']] = $count;
+                $totalCount += $count; // add to total
             }
+
+            // Add total count inside job_counts array
+            $result['total'] = $totalCount;
 
             Response::json([
                 'technician_id' => $technicianId,
@@ -168,6 +174,8 @@ final class ServiceRequestController
             Response::json(['error' => 'Server error while fetching job counts'], 500);
         }
     }
+
+
 
     public function Get_Technician_Service_Requests_By_User(Request $req, array $params): void
     {
