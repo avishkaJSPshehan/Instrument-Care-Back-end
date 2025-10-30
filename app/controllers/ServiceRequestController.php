@@ -256,7 +256,7 @@ final class ServiceRequestController
     // Fetch request details for email content (optional but useful)
     try {
         $stmt = $this->pdo->prepare("
-            SELECT sr.id, sr.full_name
+            SELECT sr.id, sr.full_name, sr.instrument_name, sr.created_at, sr.institute_address
             FROM service_requests sr
             WHERE sr.id = ?
         ");
