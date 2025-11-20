@@ -74,6 +74,7 @@ $router->add('GET', '/user/dashboard/{id}', [$profile, 'Get_Technician_Profile_D
 
 
 // Update (PUT or PATCH)
+$router->add('POST', '/tech/profile/{id}', [$profile, 'Update_Technician_Profile_Details']);
 $router->add('PUT',   '/tech/profile/{id}', [$profile, 'Update_Technician_Profile_Details']);
 $router->add('PATCH', '/tech/profile/{id}', [$profile, 'Update_Technician_Profile_Details']);
 
