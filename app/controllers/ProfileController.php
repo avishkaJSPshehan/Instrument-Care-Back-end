@@ -60,8 +60,7 @@ final class ProfileController{
 
         Response::json($row);
     }
-
-public function Update_Technician_Profile_Details(Request $req, array $params): void
+public function Update_Technician_Profile_Details(Request $req, array $params = []): void
 {
     $id = (int)($params['id'] ?? 0);
     if ($id <= 0) {
@@ -69,15 +68,15 @@ public function Update_Technician_Profile_Details(Request $req, array $params): 
         return;
     }
 
-    // -----------------------------
-    // Read all POST fields (multipart/form-data)
-    // -----------------------------
+    // Since React sends FormData, read normal fields from $_POST
     $data = $_POST ?? [];
+    if (isset($data['_method'])) {
+        unset($data['_method']);
+    }
 
     $fields = [];
     $values = [];
 
-    // Mapping front-end keys to database columns
     $mapping = [
         'fullName' => 'full_name',
         'nic' => 'nic',
@@ -85,9 +84,6 @@ public function Update_Technician_Profile_Details(Request $req, array $params): 
         'address' => 'address',
         'personalNumber' => 'personal_number',
         'bio' => 'bio',
-        'experiences' => 'experiences',
-        'certificates' => 'certificates',
-        'specialistInstrument' => 'specialist_instrument',
         'current_designation' => 'current_designation',
         'institute_name' => 'institute_name',
         'laboratory_category' => 'laboratory_category',
@@ -113,13 +109,21 @@ public function Update_Technician_Profile_Details(Request $req, array $params): 
         }
     }
 
-    // -----------------------------
-    // Handle profile image
-    // -----------------------------
+    // Handle profile image from FormData
     if (!empty($_FILES['profileImage']['tmp_name'])) {
+        $maxImageSize = 2 * 1024 * 1024; // 2 MB limit to stay well below MySQL packet threshold
+        $uploadedSize = (int)($_FILES['profileImage']['size'] ?? 0);
+
+        if ($uploadedSize > $maxImageSize) {
+            Response::json([
+                'error' => 'Profile image is too large. Please upload a file under 2MB so it fits the server limit.'
+            ], 413);
+            return;
+        }
+
         $imageData = file_get_contents($_FILES['profileImage']['tmp_name']);
         $fields[] = "profile_image = ?";
-        $values[] = $imageData; // store binary directly
+        $values[] = $imageData;
     }
 
     if (!$fields) {
@@ -138,6 +142,7 @@ public function Update_Technician_Profile_Details(Request $req, array $params): 
 
     Response::json(['message' => 'Profile updated successfully']);
 }
+
 
 
 
