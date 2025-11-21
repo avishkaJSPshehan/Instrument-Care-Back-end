@@ -60,90 +60,85 @@ final class ProfileController{
 
         Response::json($row);
     }
-public function Update_Technician_Profile_Details(Request $req, array $params = []): void
-{
-    $id = (int)($params['id'] ?? 0);
-    if ($id <= 0) {
-        Response::json(['error' => 'Invalid id'], 400);
-        return;
-    }
-
-    // Since React sends FormData, read normal fields from $_POST
-    $data = $_POST ?? [];
-    if (isset($data['_method'])) {
-        unset($data['_method']);
-    }
-
-    $fields = [];
-    $values = [];
-
-    $mapping = [
-        'fullName' => 'full_name',
-        'nic' => 'nic',
-        'email' => 'email',
-        'address' => 'address',
-        'personalNumber' => 'personal_number',
-        'bio' => 'bio',
-        'current_designation' => 'current_designation',
-        'institute_name' => 'institute_name',
-        'laboratory_category' => 'laboratory_category',
-        'instrument_category' => 'instrument_category',
-        'supervisor_name' => 'supervisor_name',
-        'supervisor_Designation' => 'supervisor_designation',
-        'supervisor_Email' => 'supervisor_email',
-        'supervisor_Contract_No' => 'supervisor_contract_no',
-        'company_name' => 'company_name',
-        'company_designation' => 'company_designation',
-        'years_of_experience' => 'years_of_experience',
-        'certificate_name' => 'certificate_name',
-        'certificate_issued_year' => 'certificate_issued_year',
-        'certificate_verification_code' => 'certificate_verification_code',
-        'guarantee_for_service' => 'guarantee_for_service',
-        'additional_comment' => 'additional_comment'
-    ];
-
-    foreach ($mapping as $frontendKey => $dbColumn) {
-        if (isset($data[$frontendKey])) {
-            $fields[] = "$dbColumn = ?";
-            $values[] = trim((string)$data[$frontendKey]);
-        }
-    }
-
-    // Handle profile image from FormData
-    if (!empty($_FILES['profileImage']['tmp_name'])) {
-        $maxImageSize = 2 * 1024 * 1024; // 2 MB limit to stay well below MySQL packet threshold
-        $uploadedSize = (int)($_FILES['profileImage']['size'] ?? 0);
-
-        if ($uploadedSize > $maxImageSize) {
-            Response::json([
-                'error' => 'Profile image is too large. Please upload a file under 2MB so it fits the server limit.'
-            ], 413);
+    public function Update_Technician_Profile_Details(Request $req, array $params): void
+    {
+        // Validate id
+        $id = (int)($params['id'] ?? 0);
+        if ($id <= 0) {
+            Response::json(['error' => 'Invalid id'], 400);
             return;
         }
 
-        $imageData = file_get_contents($_FILES['profileImage']['tmp_name']);
-        $fields[] = "profile_image = ?";
-        $values[] = $imageData;
+        // Get incoming data:
+        // Prefer $_POST (FormData) — fallback to JSON body
+        $postData = $_POST ?? [];
+        // If POST empty, try JSON:
+        if (empty($postData)) {
+            $jsonBody = $req->json();
+            if (is_array($jsonBody)) {
+                $postData = $jsonBody;
+            }
+        }
+
+        $fields = [];
+        $values = [];
+
+        // Mapping front-end keys to database columns
+        $mapping = [
+            'fullName' => 'full_name',
+            'nic'     => 'nic',
+            'email'   => 'email',
+            'address' => 'address',
+            'personalNumber' => 'personal_number',
+            'bio' => 'bio',
+            'experiences' => 'experiences',
+            'certificates' => 'certificates',
+            'specialistInstrument' => 'specialist_instrument',
+            'current_designation' => 'current_designation',
+            'institute_name' => 'institute_name',
+            'laboratory_category' => 'laboratory_category',
+            'instrument_category' => 'instrument_category',
+            'supervisor_name' => 'supervisor_name',
+            'supervisor_Designation' => 'supervisor_designation',
+            'supervisor_Email' => 'supervisor_email',
+            'supervisor_Contract_No' => 'supervisor_contract_no',
+            'company_name' => 'company_name',
+            'company_designation' => 'company_designation',
+            'years_of_experience' => 'years_of_experience',
+            'certificate_name' => 'certificate_name',
+            'certificate_issued_year' => 'certificate_issued_year',
+            'certificate_verification_code' => 'certificate_verification_code',
+            'guarantee_for_service' => 'guarantee_for_service',
+            'additional_comment' => 'additional_comment',
+            // NEW: accept profile_image_url from frontend
+            'profile_image_url' => 'profile_image_url'
+        ];
+
+        foreach ($mapping as $frontendKey => $dbColumn) {
+            if (isset($postData[$frontendKey]) && $postData[$frontendKey] !== '') {
+                $fields[] = "$dbColumn = ?";
+                $values[] = trim((string)$postData[$frontendKey]);
+            }
+        }
+
+        if (!$fields) {
+            Response::json(['error' => 'No updatable fields provided'], 400);
+            return;
+        }
+
+        // Add WHERE id
+        $values[] = $id;
+
+        $sql = 'UPDATE technician_details SET ' . implode(', ', $fields) . ', updated_at = NOW() WHERE user_id = ?';
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($values);
+            Response::json(['message' => 'Profile updated successfully']);
+        } catch (\PDOException $e) {
+            // Log error on server, return safe message
+            error_log('Profile update failed: ' . $e->getMessage());
+            Response::json(['error' => 'Failed to update profile'], 500);
+        }
     }
-
-    if (!$fields) {
-        Response::json(['error' => 'No updatable fields provided'], 400);
-        return;
-    }
-
-    $values[] = $id;
-
-    $sql = 'UPDATE technician_details SET '
-         . implode(', ', $fields)
-         . ', updated_at = NOW() WHERE user_id = ?';
-
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute($values);
-
-    Response::json(['message' => 'Profile updated successfully']);
-}
-
-
-
-
 }
