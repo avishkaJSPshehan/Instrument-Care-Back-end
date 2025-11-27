@@ -1,4 +1,5 @@
 <?php
+use App\Controllers\AdminController;
 use App\Controllers\ServiceRequestController;
 use App\Core\Request;
 use App\Core\Response;
@@ -16,6 +17,10 @@ use App\Controllers\ProfileController;
 $router->add('GET', '/api/health', function (Request $req) {
     return ['status' => 'ok', 'time' => date('c')];
 });
+
+//////////////////////////////////////////// Admin Routes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+$Admin = new AdminController($db);
+$router->add('GET', '/admin/dashboard', [$Admin, 'Get_Admin_Dashboard_Status']);
 
 
 //////////////////////////////////////////// Service Request Routes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
