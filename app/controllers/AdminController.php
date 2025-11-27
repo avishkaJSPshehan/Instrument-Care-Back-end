@@ -18,23 +18,25 @@ final class AdminController{
     public function Get_Admin_Dashboard_Status(Request $req, array $params): void
     {
         try {
-            // Prepare query to count users with user_type_id = 8
-            $stmt = $this->pdo->prepare('SELECT COUNT(*) AS user_count FROM users WHERE user_type_id = :user_type_id');
-            $stmt->execute(['user_type_id' => 8]);
-            
-            $row = $stmt->fetch(); // fetch the single row
-            
-            if (!$row) {
-                Response::json(['error' => 'No users found'], 404);
-                return;
-            }
+            // Count Owners (user_type_id = 8)
+            $stmtOwners = $this->pdo->prepare('SELECT COUNT(*) AS count FROM users WHERE user_type_id = :user_type_id');
+            $stmtOwners->execute(['user_type_id' => 8]);
+            $ownersRow = $stmtOwners->fetch();
 
-            // Return count
-            Response::json(['user_count' => $row['user_count']]);
-        } catch (\PDOException $e) { // <-- add backslash here
+            // Count Technicians (user_type_id = 10)
+            $stmtTech = $this->pdo->prepare('SELECT COUNT(*) AS count FROM users WHERE user_type_id = :user_type_id');
+            $stmtTech->execute(['user_type_id' => 10]);
+            $techRow = $stmtTech->fetch();
+
+            Response::json([
+                'owner_count' => $ownersRow['count'] ?? 0,
+                'technician_count' => $techRow['count'] ?? 0
+            ]);
+        } catch (\PDOException $e) {
             Response::json(['error' => 'Database error: ' . $e->getMessage()], 500);
         }
     }
+
 
 
 }
