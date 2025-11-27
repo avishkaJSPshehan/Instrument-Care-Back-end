@@ -17,35 +17,6 @@ $router->add('GET', '/api/health', function (Request $req) {
     return ['status' => 'ok', 'time' => date('c')];
 });
 
-// Items resource
-$items = new ItemsController($db);
-
-
-// List
-$router->add('GET', '/api/items', [$items, 'index']);
-
-// Get by id
-// $router->add('GET', '/api/items/{id}', [$items, 'show']);
-
-// Create
-$router->add('POST', '/api/items', [$items, 'store']);
-
-// Update (PUT or PATCH)
-// $router->add('PUT',   '/api/items/{id}', [$items, 'update']);
-// $router->add('PATCH', '/api/items/{id}', [$items, 'update']);
-
-// Delete
-$router->add('DELETE', '/api/items/{id}', [$items, 'destroy']);
-
-
-
-
-
-
-
-
-
-
 
 //////////////////////////////////////////// Service Request Routes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
