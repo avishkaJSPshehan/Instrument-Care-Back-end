@@ -161,5 +161,40 @@ final class AdminController{
         }
     }
 
+    public function Delete_Technician(Request $req, array $params): void
+    {
+        try {
+            // ✅ Get technician ID from URL parameters
+            if (!isset($params['id'])) {
+                Response::json(['error' => 'Technician ID is required'], 400);
+                return;
+            }
+            $id = $params['id'];
+
+            // ✅ Prepare and execute DELETE query
+            $stmt = $this->pdo->prepare("DELETE FROM technician_details WHERE id = :id");
+            $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
+            $stmt->execute();
+
+            // ✅ Check if any row was deleted
+            if ($stmt->rowCount() > 0) {
+                Response::json([
+                    'success' => true,
+                    'message' => 'Technician deleted successfully'
+                ]);
+            } else {
+                Response::json([
+                    'error' => 'Technician not found or already deleted'
+                ], 404);
+            }
+
+        } catch (\PDOException $e) {
+            Response::json([
+                'error' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
 
 }

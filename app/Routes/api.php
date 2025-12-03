@@ -24,6 +24,7 @@ $router->add('GET', '/admin/dashboard', [$Admin, 'Get_Admin_Dashboard_Status']);
 $router->add('GET', '/admin/line-chart', [$Admin, 'Get_Service_Request_Line_Chart_Data']);
 $router->add('GET', '/admin/technicians', [$Admin, 'Get_All_Technician_Details']);
 $router->add('PUT', '/admin/technicians/{id}', [$Admin, 'Update_Technician_Profile']);
+$router->add('DELETE', '/admin/technicians/{id}', [$Admin, 'Delete_Technician']);
 
 
 //////////////////////////////////////////// Service Request Routes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
