@@ -19,23 +19,40 @@ final class AdminController{
     {
         try {
             // Count Owners (user_type_id = 8)
-            $stmtOwners = $this->pdo->prepare('SELECT COUNT(*) AS count FROM users WHERE user_type_id = :user_type_id');
+            $stmtOwners = $this->pdo->prepare(
+                'SELECT COUNT(*) AS count FROM users WHERE user_type_id = :user_type_id'
+            );
             $stmtOwners->execute(['user_type_id' => 8]);
             $ownersRow = $stmtOwners->fetch();
 
             // Count Technicians (user_type_id = 10)
-            $stmtTech = $this->pdo->prepare('SELECT COUNT(*) AS count FROM users WHERE user_type_id = :user_type_id');
+            $stmtTech = $this->pdo->prepare(
+                'SELECT COUNT(*) AS count FROM users WHERE user_type_id = :user_type_id'
+            );
             $stmtTech->execute(['user_type_id' => 10]);
             $techRow = $stmtTech->fetch();
 
+            // ✅ Count Instruments (instrument table)
+            $stmtInstrument = $this->pdo->prepare(
+                'SELECT COUNT(*) AS count FROM instrument'
+            );
+            $stmtInstrument->execute();
+            $instrumentRow = $stmtInstrument->fetch();
+
+            // ✅ Final Dashboard Response
             Response::json([
-                'owner_count' => $ownersRow['count'] ?? 0,
-                'technician_count' => $techRow['count'] ?? 0
+                'owner_count'       => $ownersRow['count'] ?? 0,
+                'technician_count'  => $techRow['count'] ?? 0,
+                'instrument_count' => $instrumentRow['count'] ?? 0
             ]);
+
         } catch (\PDOException $e) {
-            Response::json(['error' => 'Database error: ' . $e->getMessage()], 500);
+            Response::json([
+                'error' => 'Database error: ' . $e->getMessage()
+            ], 500);
         }
     }
+
 
 
 
