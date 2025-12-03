@@ -87,5 +87,24 @@ final class AdminController{
         }
     }
 
+    public function Get_All_Technician_Details(Request $req, array $params): void
+    {
+        try {
+            // ✅ Fetch all technician details
+            $stmt = $this->pdo->prepare("SELECT * FROM technician_details ORDER BY id ASC");
+            $stmt->execute();
+            $technicians = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            // ✅ Return response as JSON
+            Response::json($technicians);
+
+        } catch (\PDOException $e) {
+            Response::json([
+                'error' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
 
 }
