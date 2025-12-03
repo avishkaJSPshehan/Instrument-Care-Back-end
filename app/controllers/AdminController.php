@@ -32,18 +32,26 @@ final class AdminController{
             $stmtTech->execute(['user_type_id' => 10]);
             $techRow = $stmtTech->fetch();
 
-            // ✅ Count Instruments (instrument table)
+            // ✅ Count Instruments
             $stmtInstrument = $this->pdo->prepare(
                 'SELECT COUNT(*) AS count FROM instrument'
             );
             $stmtInstrument->execute();
             $instrumentRow = $stmtInstrument->fetch();
 
+            // ✅ Count Service Requests
+            $stmtServiceRequests = $this->pdo->prepare(
+                'SELECT COUNT(*) AS count FROM service_requests'
+            );
+            $stmtServiceRequests->execute();
+            $serviceRequestRow = $stmtServiceRequests->fetch();
+
             // ✅ Final Dashboard Response
             Response::json([
-                'owner_count'       => $ownersRow['count'] ?? 0,
-                'technician_count'  => $techRow['count'] ?? 0,
-                'instrument_count' => $instrumentRow['count'] ?? 0
+                'owner_count'          => $ownersRow['count'] ?? 0,
+                'technician_count'     => $techRow['count'] ?? 0,
+                'instrument_count'     => $instrumentRow['count'] ?? 0,
+                'service_request_count'=> $serviceRequestRow['count'] ?? 0
             ]);
 
         } catch (\PDOException $e) {
@@ -52,6 +60,7 @@ final class AdminController{
             ], 500);
         }
     }
+
 
 
 
