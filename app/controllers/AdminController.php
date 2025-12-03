@@ -61,8 +61,31 @@ final class AdminController{
         }
     }
 
+    public function Get_Service_Request_Line_Chart_Data(Request $req, array $params): void
+    {
+        try {
+            // ✅ Get service request count grouped by date
+            $stmt = $this->pdo->prepare("
+                SELECT 
+                    DATE(created_at) AS date, 
+                    COUNT(*) AS count
+                FROM service_requests
+                GROUP BY DATE(created_at)
+                ORDER BY DATE(created_at) ASC
+            ");
 
+            $stmt->execute();
+            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
+            // ✅ Return data in required format for line chart
+            Response::json($rows);
+
+        } catch (\PDOException $e) {
+            Response::json([
+                'error' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
 
 }
