@@ -105,6 +105,61 @@ final class AdminController{
         }
     }
 
+    public function Update_Technician_Profile(Request $req, array $params): void
+    {
+        try {
+            // ✅ Get technician ID from URL parameters
+            if (!isset($params['id'])) {
+                Response::json(['error' => 'Technician ID is required'], 400);
+                return;
+            }
+            $id = $params['id'];
+
+            // ✅ Get input data from JSON body
+            $data = json_decode(file_get_contents("php://input"), true);
+
+            // ✅ Allowed columns to update (no skills column)
+            $allowedColumns = [
+                'full_name', 'current_designation', 'company_name', 'company_designation',
+                'years_of_experience', 'email', 'personal_number', 'address',
+                'nic', 'institute_name', 'supervisor_name', 'certificate_name',
+                'certificate_issued_year', 'certificate_verification_code',
+                'bio', 'guarantee_for_service', 'additional_comment'
+            ];
+
+            $fields = [];
+            $values = [];
+
+            foreach ($allowedColumns as $column) {
+                if (isset($data[$column])) {
+                    $fields[] = "$column = :$column";
+                    $values[":$column"] = $data[$column];
+                }
+            }
+
+            if (empty($fields)) {
+                Response::json(['error' => 'No valid fields to update'], 400);
+                return;
+            }
+
+            // ✅ Prepare and execute update query
+            $sql = "UPDATE technician_details SET " . implode(", ", $fields) . " WHERE id = :id";
+            $values[':id'] = $id;
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($values);
+
+            Response::json([
+                'success' => true,
+                'message' => 'Technician profile updated successfully'
+            ]);
+
+        } catch (\PDOException $e) {
+            Response::json([
+                'error' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
 
 }
