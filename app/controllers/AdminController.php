@@ -195,6 +195,24 @@ final class AdminController{
         }
     }
 
+    public function Get_All_User_Details(Request $req, array $params): void
+    {
+        try {
+            // ✅ Fetch all user details
+            $stmt = $this->pdo->prepare("SELECT * FROM users ORDER BY id ASC");
+            $stmt->execute();
+            $users = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            // ✅ Return response as JSON
+            Response::json($users);
+
+        } catch (\PDOException $e) {
+            Response::json([
+                'error' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 
 
 }
