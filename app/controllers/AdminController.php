@@ -199,8 +199,8 @@ final class AdminController{
     {
         try {
             // ✅ Fetch all user details
-            $stmt = $this->pdo->prepare("SELECT * FROM users ORDER BY id ASC");
-            $stmt->execute();
+            $stmt = $this->pdo->prepare("SELECT * FROM users WHERE user_type_id = :user_type_id ORDER BY id ASC");
+            $stmt->execute(['user_type_id' => 8]);
             $users = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             // ✅ Return response as JSON
