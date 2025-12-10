@@ -306,28 +306,83 @@ final class AdminController{
         }
     }
 
-    public function Get_All_Instruments(): void
-    {
-        try {
-            // ✅ Prepare SQL query to fetch all instruments
-            $sql = "SELECT * FROM instrument ORDER BY instrument_id DESC";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute();
+public function Get_All_Instruments(): void
+{
+    try {
+        // ✅ Prepare SQL query to fetch all instruments with instrument_type
+        $sql = "
+            SELECT 
+                i.instrument_id,
+                i.instrument_name,
+                i.institute_id,
+                i.faculty_id,
+                i.department_id,
+                i.laboratory_id,
+                it.instrument_type AS instrument_type,
+                i.condition_id,
+                i.manufacturer,
+                i.model,
+                i.year_of_manufacture,
+                i.accessories,
+                i.inst_description,
+                i.catalog_link,
+                i.catalog_upload,
+                i.catalog_access,
+                i.price,
+                i.service_charge,
+                i.vendor_name,
+                i.vendor_contact,
+                i.vendor_url,
+                i.no_of_samples_per_cycle,
+                i.no_of_samples_per_day,
+                i.total_usage_hour_per_day,
+                i.specification,
+                i.availabiltiy_of_staff,
+                i.external_researchers,
+                i.funding_source,
+                i.date_commencement_operation,
+                i.record_status,
+                i.contact_person_name,
+                i.contact_person_email,
+                i.contact_person_phone_number,
+                i.contact_person_mobile_number,
+                i.inst_keywords,
+                i.p_categories,
+                i.image_upload1,
+                i.image_upload2,
+                i.image_upload3,
+                i.image_upload4,
+                i.isDeleted,
+                i.created_user_id,
+                i.created_date_time,
+                i.updated_user_id,
+                i.updated_date_time,
+                i.deletedBy,
+                i.deleted_date_time,
+                i.record_endDtm
+            FROM instrument i
+            LEFT JOIN instrument_types it ON i.instrument_type_id = it.instrument_type_id
+            ORDER BY i.instrument_id DESC
+        ";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
 
-            $instruments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $instruments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // ✅ Return the result as JSON
-            Response::json([
-                'success' => true,
-                'data' => $instruments
-            ]);
+        // ✅ Return the result as JSON
+        Response::json([
+            'success' => true,
+            'data' => $instruments
+        ]);
 
-        } catch (\PDOException $e) {
-            Response::json([
-                'error' => 'Database error: ' . $e->getMessage()
-            ], 500);
-        }
+    } catch (\PDOException $e) {
+        Response::json([
+            'error' => 'Database error: ' . $e->getMessage()
+        ], 500);
     }
+}
+
 
 
 }
