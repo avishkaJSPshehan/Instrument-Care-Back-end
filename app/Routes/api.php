@@ -28,6 +28,7 @@ $router->add('DELETE', '/admin/technicians/{id}', [$Admin, 'Delete_Technician'])
 $router->add('GET', '/admin/users', [$Admin, 'Get_All_User_Details']);
 $router->add('PUT', '/admin/users/{id}', [$Admin, 'Update_User_Profile']);
 $router->add('DELETE', '/admin/users/{id}', [$Admin, 'Delete_User_Profile']);
+$router->add('GET', '/admin/instruments', [$Admin, 'Get_All_Instruments']);
 
 //////////////////////////////////////////// Service Request Routes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

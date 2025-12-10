@@ -27,9 +27,9 @@ final class AdminController{
 
             // Count Technicians (user_type_id = 10)
             $stmtTech = $this->pdo->prepare(
-                'SELECT COUNT(*) AS count FROM users WHERE user_type_id = :user_type_id'
+                'SELECT COUNT(*) AS count FROM technician_details'
             );
-            $stmtTech->execute(['user_type_id' => 10]);
+            $stmtTech->execute();
             $techRow = $stmtTech->fetch();
 
             // ✅ Count Instruments
@@ -298,6 +298,29 @@ final class AdminController{
                     'message' => 'User not found or already deleted'
                 ], 404);
             }
+
+        } catch (\PDOException $e) {
+            Response::json([
+                'error' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function Get_All_Instruments(): void
+    {
+        try {
+            // ✅ Prepare SQL query to fetch all instruments
+            $sql = "SELECT * FROM instrument ORDER BY instrument_id DESC";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+
+            $instruments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // ✅ Return the result as JSON
+            Response::json([
+                'success' => true,
+                'data' => $instruments
+            ]);
 
         } catch (\PDOException $e) {
             Response::json([
