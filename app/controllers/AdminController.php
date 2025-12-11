@@ -485,6 +485,23 @@ final class AdminController{
         }
     }
 
+    public function Get_All_Service_Requests(Request $req, array $params): void
+    {
+        try {
+            // ✅ Fetch all service request details
+            $stmt = $this->pdo->prepare("SELECT * FROM service_requests ORDER BY id ASC");
+            $stmt->execute();
+            $serviceRequests = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            // ✅ Return response as JSON
+            Response::json($serviceRequests);
+
+        } catch (\PDOException $e) {
+            Response::json([
+                'error' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
 
 
