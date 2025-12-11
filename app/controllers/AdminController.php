@@ -450,6 +450,42 @@ final class AdminController{
     }
 
 
+    public function Delete_Instrument(Request $req, array $params): void
+    {
+        try {
+            // ✅ Get instrument ID from URL parameters
+            if (!isset($params['id'])) {
+                Response::json(['error' => 'Instrument ID is required'], 400);
+                return;
+            }
+            $id = $params['id'];
+
+            // ✅ Prepare and execute delete query
+            $sql = "DELETE FROM instrument WHERE instrument_id = :id";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([':id' => $id]);
+
+            // ✅ Check if any row was deleted
+            if ($stmt->rowCount() > 0) {
+                Response::json([
+                    'success' => true,
+                    'message' => 'Instrument deleted successfully'
+                ]);
+            } else {
+                Response::json([
+                    'success' => false,
+                    'message' => 'Instrument not found or already deleted'
+                ], 404);
+            }
+
+        } catch (\PDOException $e) {
+            Response::json([
+                'error' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
 
 
 }
