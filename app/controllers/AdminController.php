@@ -399,7 +399,7 @@ final class AdminController{
             // ✅ Allowed columns to update
             $allowedColumns = [
                 'instrument_name', 'institute_id', 'faculty_id', 'department_id',
-                'laboratory_id', 'instrument_type', 'condition_id', 'manufacturer',
+                'laboratory_id', 'condition_id', 'manufacturer',
                 'model', 'year_of_manufacture', 'accessories', 'inst_description',
                 'catalog_link', 'catalog_upload', 'catalog_access', 'price',
                 'service_charge', 'vendor_name', 'vendor_contact', 'vendor_url',
@@ -431,7 +431,7 @@ final class AdminController{
             $fields[] = "updated_date_time = NOW()";
 
             // ✅ Prepare and execute update query
-            $sql = "UPDATE instruments SET " . implode(", ", $fields) . " WHERE instrument_id = :id";
+            $sql = "UPDATE instrument SET " . implode(", ", $fields) . " WHERE instrument_id = :id";
             $values[':id'] = $id;
 
             $stmt = $this->pdo->prepare($sql);
