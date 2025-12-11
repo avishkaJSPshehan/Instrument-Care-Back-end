@@ -30,6 +30,7 @@ $router->add('PUT', '/admin/users/{id}', [$Admin, 'Update_User_Profile']);
 $router->add('DELETE', '/admin/users/{id}', [$Admin, 'Delete_User_Profile']);
 $router->add('GET', '/admin/instruments', [$Admin, 'Get_All_Instruments']);
 $router->add('PUT', '/admin/instrument{id}', [$Admin, 'Update_Instrument']);
+$router->add('DELETE', '/admin/instrument/{id}', [$Admin, 'Delete_Instrument']);
 
 //////////////////////////////////////////// Service Request Routes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
