@@ -111,7 +111,8 @@ final class ProfileController{
             'guarantee_for_service' => 'guarantee_for_service',
             'additional_comment' => 'additional_comment',
             // NEW: accept profile_image_url from frontend
-            'profile_image_url' => 'profile_image_url'
+            'profile_image_url' => 'profile_image_url',
+            'instrument' => 'caring_instruments'
         ];
 
         foreach ($mapping as $frontendKey => $dbColumn) {
