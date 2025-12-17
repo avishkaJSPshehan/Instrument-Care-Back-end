@@ -141,4 +141,27 @@ final class ProfileController{
             Response::json(['error' => 'Failed to update profile'], 500);
         }
     }
+
+    public function Get_All_Instruments(Request $req, array $params): void
+    {
+        try {
+            // ✅ Prepare SQL query to fetch all instruments
+            $sql = "SELECT instrument_name FROM instrument ORDER BY instrument_name ASC";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+
+            $instruments = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            Response::json([
+                'success' => true,
+                'data' => $instruments
+            ]);
+
+        } catch (\PDOException $e) {
+            Response::json([
+                'error' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

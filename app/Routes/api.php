@@ -53,6 +53,7 @@ $router->add('PUT', '/api/send-owner-email', [$Service_Request, 'Send_Service_Re
 // Get by id
 $profile = new ProfileController($db);
 $router->add('GET', '/tech/profile/{id}', [$profile, 'Get_Technician_Profile_Details']);
+$router->add('GET', '/tech/instruments', [$profile, 'Get_All_Instruments']);
 
 
 ////////////////////////////////////////// User Routes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
