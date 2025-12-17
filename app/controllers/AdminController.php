@@ -503,6 +503,95 @@ final class AdminController{
         }
     }
 
+    public function Update_Service_Request(Request $req, array $params): void
+    {
+        try {
+            // ✅ Get service request ID from URL params
+            if (!isset($params['id'])) {
+                Response::json(['error' => 'Service request ID is required'], 400);
+                return;
+            }
+
+            $id = $params['id'];
+
+            // ✅ Read JSON body
+            $data = json_decode(file_get_contents("php://input"), true);
+
+            if (!$data || !is_array($data)) {
+                Response::json(['error' => 'Invalid JSON payload'], 400);
+                return;
+            }
+
+            // ✅ Allowed columns for update
+            $allowedColumns = [
+                'full_name',
+                'email',
+                'physical_address',
+                'contact_number',
+                'institute_name',
+                'institute_address',
+                'instrument_name',
+                'instrument_brand',
+                'instrument_model',
+                'instrument_manufacturer',
+                'manufactured_year',
+                'product_testing_type',
+                'testing_parameter',
+                'consumption_period',
+                'issue_description',
+                'status',
+                'technician_id',
+                'user_id'
+            ];
+
+            $fields = [];
+            $values = [];
+
+            foreach ($allowedColumns as $column) {
+                if (array_key_exists($column, $data)) {
+                    $fields[] = "$column = :$column";
+                    $values[":$column"] = $data[$column];
+                }
+            }
+
+            if (empty($fields)) {
+                Response::json(['error' => 'No valid fields to update'], 400);
+                return;
+            }
+
+            // ✅ Always update timestamp
+            $fields[] = "updated_at = NOW()";
+
+            // ✅ Build query
+            $sql = "UPDATE service_requests 
+                    SET " . implode(", ", $fields) . " 
+                    WHERE id = :id";
+
+            $values[':id'] = $id;
+
+            // ✅ Execute
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($values);
+
+            // ✅ Check if record exists
+            if ($stmt->rowCount() === 0) {
+                Response::json([
+                    'error' => 'Service request not found or no changes made'
+                ], 404);
+                return;
+            }
+
+            Response::json([
+                'success' => true,
+                'message' => 'Service request updated successfully'
+            ]);
+
+        } catch (\PDOException $e) {
+            Response::json([
+                'error' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
 
 }
