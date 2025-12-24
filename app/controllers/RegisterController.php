@@ -194,8 +194,8 @@ final class RegisterController
             // Validate required fields
             $requiredFields = [
                 'title', 'gender', 'first_name', 'last_name',
-                'address', 'participated_institute', 'faculty',
-                'department', 'designation', 'phone_number',
+                'address', 'institute_id',
+                'designation', 'phone_number',
                 'mobile_number', 'email', 'password'
             ];
 
@@ -227,11 +227,11 @@ final class RegisterController
             $stmt = $this->pdo->prepare("
                 INSERT INTO users (
                     title, gender, first_name, last_name, address,
-                    participated_institute, other_institute, faculty, department, designation,
+                    institute_id, designation,
                     phone_number, mobile_number, email, password
                 ) VALUES (
                     :title, :gender, :first_name, :last_name, :address,
-                    :participated_institute, :other_institute, :faculty, :department, :designation,
+                    :institute_id, :designation,
                     :phone_number, :mobile_number, :email, :password
                 )
             ");
@@ -242,10 +242,7 @@ final class RegisterController
                 ':first_name' => $input['first_name'],
                 ':last_name' => $input['last_name'],
                 ':address' => $input['address'],
-                ':participated_institute' => $input['participated_institute'],
-                ':other_institute' => $input['other_institute'] ?? null,
-                ':faculty' => $input['faculty'],
-                ':department' => $input['department'],
+                ':institute_id' => $input['institute_id'],
                 ':designation' => $input['designation'],
                 ':phone_number' => $input['phone_number'],
                 ':mobile_number' => $input['mobile_number'],
