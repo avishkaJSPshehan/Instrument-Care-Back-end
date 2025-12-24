@@ -80,3 +80,4 @@ $router->add('PUT', '/api/reset-password', [$login, 'resetPassword']);
 $register = new RegisterController($db);
 $router->add('POST', '/api/register', [$register, 'register']);
 $router->add('POST', '/api/verify-email', [$register, 'verifyEmail']);
+$router->add('GET', '/api/instutes', [$register, 'Get_All_Institutes']);

@@ -134,4 +134,30 @@ final class RegisterController
 
         Response::json(['message' => 'Verification successful'], 200);
     }
+
+    public function Get_All_Institutes(Request $req, array $params): void
+    {
+        try {
+            // ✅ Get all institute IDs and names
+            $stmt = $this->pdo->prepare("
+                SELECT 
+                    institute_id,
+                    name
+                FROM institutes
+                ORDER BY name ASC
+            ");
+
+            $stmt->execute();
+            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            // ✅ Return institute list
+            Response::json($rows);
+
+        } catch (\PDOException $e) {
+            Response::json([
+                'error' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }
