@@ -79,6 +79,7 @@ $router->add('PUT', '/api/reset-password', [$login, 'resetPassword']);
 // Registration route
 $register = new RegisterController($db);
 $router->add('POST', '/api/register', [$register, 'register']);
+$router->add('POST', '/api/register-user', [$register, 'RegisterUser']);
 $router->add('POST', '/api/verify-email', [$register, 'verifyEmail']);
 $router->add('GET', '/api/instutes', [$register, 'Get_All_Institutes']);
 $router->add('GET', '/api/designations', [$register, 'Get_All_Designations']);
