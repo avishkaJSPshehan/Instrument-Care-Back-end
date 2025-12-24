@@ -160,4 +160,30 @@ final class RegisterController
         }
     }
 
+    public function Get_All_Designations(Request $req, array $params): void
+    {
+        try {
+            // ✅ Get all designation IDs and names
+            $stmt = $this->pdo->prepare("
+                SELECT 
+                    designation_id,
+                    name
+                FROM designation
+                ORDER BY name ASC
+            ");
+
+            $stmt->execute();
+            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            // ✅ Return designation list
+            Response::json($rows);
+
+        } catch (\PDOException $e) {
+            Response::json([
+                'error' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
 }
