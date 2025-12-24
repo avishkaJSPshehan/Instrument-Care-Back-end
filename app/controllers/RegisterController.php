@@ -185,5 +185,90 @@ final class RegisterController
         }
     }
 
+    public function RegisterUser(Request $req, array $params): void
+    {
+        try {
+            // Get JSON input from frontend
+            $input = json_decode(file_get_contents('php://input'), true);
 
+            // Validate required fields
+            $requiredFields = [
+                'title', 'gender', 'first_name', 'last_name',
+                'address', 'participated_institute', 'faculty',
+                'department', 'designation', 'phone_number',
+                'mobile_number', 'email', 'password'
+            ];
+
+            foreach ($requiredFields as $field) {
+                if (empty($input[$field])) {
+                    Response::json([
+                        'status' => 'error',
+                        'message' => "Field '{$field}' is required."
+                    ], 400);
+                    return;
+                }
+            }
+
+            // Check if email already exists
+            $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = :email");
+            $stmt->execute([':email' => $input['email']]);
+            if ($stmt->rowCount() > 0) {
+                Response::json([
+                    'status' => 'error',
+                    'message' => 'Email already registered.'
+                ], 400);
+                return;
+            }
+
+            // Hash password
+            $passwordHash = password_hash($input['password'], PASSWORD_BCRYPT);
+
+            // Insert user into database
+            $stmt = $this->pdo->prepare("
+                INSERT INTO users (
+                    title, gender, first_name, last_name, address,
+                    participated_institute, other_institute, faculty, department, designation,
+                    phone_number, mobile_number, email, password
+                ) VALUES (
+                    :title, :gender, :first_name, :last_name, :address,
+                    :participated_institute, :other_institute, :faculty, :department, :designation,
+                    :phone_number, :mobile_number, :email, :password
+                )
+            ");
+
+            $stmt->execute([
+                ':title' => $input['title'],
+                ':gender' => $input['gender'],
+                ':first_name' => $input['first_name'],
+                ':last_name' => $input['last_name'],
+                ':address' => $input['address'],
+                ':participated_institute' => $input['participated_institute'],
+                ':other_institute' => $input['other_institute'] ?? null,
+                ':faculty' => $input['faculty'],
+                ':department' => $input['department'],
+                ':designation' => $input['designation'],
+                ':phone_number' => $input['phone_number'],
+                ':mobile_number' => $input['mobile_number'],
+                ':email' => $input['email'],
+                ':password' => $passwordHash
+            ]);
+
+            // Success response
+            Response::json([
+                'status' => 'success',
+                'message' => 'User registered successfully.'
+            ]);
+
+        } catch (\PDOException $e) {
+            Response::json([
+                'status' => 'error',
+                'message' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        } catch (\Exception $ex) {
+            Response::json([
+                'status' => 'error',
+                'message' => 'Server error: ' . $ex->getMessage()
+            ], 500);
+        }
+    }
 }
