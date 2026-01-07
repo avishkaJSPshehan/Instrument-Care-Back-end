@@ -17,60 +17,58 @@ final class LoginController
 
     // POST /api/login
     public function login(Request $req): void
-{
-    $data = $req->json();
+    {
+        $data = $req->json();
 
-    if (empty($data['username']) || empty($data['password'])) {
-        Response::json(['error' => 'Username and password are required'], 422);
-        return;
-    }
-
-    $username = trim($data['username']);
-    $password = $data['password'];
-
-    // find user and user type
-    $stmt = $this->pdo->prepare('SELECT id, user_type_id, username, password FROM users WHERE username = ?');
-    $stmt->execute([$username]);
-    $user = $stmt->fetch();
-    $roleId = $user['user_type_id'];
-    $id = $user['id'];
-
-    if (!$user || !password_verify($password, $user['password'])) {
-        Response::json(['error' => 'Invalid credentials'], 401);
-        return;
-    }
-
-    // Fake JWT-like token (in production use real JWT lib)
-    $payload = [
-        'sub' => $user['id'],
-        'username' => $user['username'],
-        'iat' => time(),
-        'exp' => time() + 3600 // 1 hour expiry
-    ];
-    $token = base64_encode(json_encode($payload));
-
-    // default response
-    $response = [
-        'message' => 'Login successful',
-        'token' => $token,
-        'id' => $id,
-        'role' => $roleId
-    ];
-
-    // ✅ Only if roleId is 10, get technician_id
-    if ((int)$roleId === 10) {
-        $stmtTech = $this->pdo->prepare('SELECT id FROM technician_details WHERE user_id = ? LIMIT 1');
-        $stmtTech->execute([$id]);
-        $tech = $stmtTech->fetch();
-
-        if ($tech && isset($tech['id'])) {
-            $response['technician_id'] = $tech['id'];
+        if (empty($data['username']) || empty($data['password'])) {
+            Response::json(['error' => 'Username and password are required'], 422);
+            return;
         }
+
+        $username = trim($data['username']);
+        $password = $data['password'];
+
+        // find user and user type
+        $stmt = $this->pdo->prepare('SELECT id, user_type_id, username, password FROM users WHERE username = ?');
+        $stmt->execute([$username]);
+        $user = $stmt->fetch();
+        $roleId = $user['user_type_id'];
+        $id = $user['id'];
+
+        if (!$user || !password_verify($password, $user['password'])) {
+            Response::json(['error' => 'Invalid credentials'], 401);
+            return;
+        }
+
+        // Fake JWT-like token (in production use real JWT lib)
+        $payload = [
+            'sub' => $user['id'],
+            'username' => $user['username'],
+            'iat' => time(),
+            'exp' => time() + 3600 // 1 hour expiry
+        ];
+        $token = base64_encode(json_encode($payload));
+
+        // default response
+        $response = [
+            'message' => 'Login successful',
+            'token' => $token,
+            'id' => $id,
+            'role' => $roleId
+        ];
+
+        // ✅ Only if roleId is 10, get technician_id
+        if ((int)$roleId === 10) {
+            $stmtTech = $this->pdo->prepare('SELECT id FROM technician_details WHERE user_id = ? LIMIT 1');
+            $stmtTech->execute([$id]);
+            $tech = $stmtTech->fetch();
+
+            if ($tech && isset($tech['id'])) {
+                $response['technician_id'] = $tech['id'];
+            }
+        }
+        Response::json($response);
     }
-
-    Response::json($response);
-}
-
 
 
     public function sendPasswordReset(Request $req): void

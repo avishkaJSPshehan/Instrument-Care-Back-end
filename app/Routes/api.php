@@ -40,7 +40,6 @@ $router->add('DELETE', '/admin/service-request/{id}', [$Admin, 'Delete_Service_R
 // Create
 $Service_Request = new ServiceRequestController($db);
 $router->add('POST', '/user/service-request', [$Service_Request, 'Create_Service_Request']);
-
 $router->add('GET', '/user/service-request/{id}', [$Service_Request, 'Get_Technician_Service_Requests']);
 $router->add('GET', '/service-request/{id}/job-counts', [$Service_Request, 'Get_Technician_Job_Counts']);
 $router->add('POST', '/user/service-request/{id}/my-requests', [$Service_Request, 'Get_Technician_Service_Requests_By_User']);
